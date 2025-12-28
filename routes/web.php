@@ -18,6 +18,7 @@ use App\Http\Controllers\SaisonController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\StageFormationController;
+use App\Http\Controllers\PortailParentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -234,6 +235,24 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('/inscriptions/{inscription}', [StageFormationController::class, 'destroyInscription'])->name('inscriptions.destroy');
     Route::post('/inscriptions/{inscription}/delivrer-certificat', [StageFormationController::class, 'delivrerCertificat'])->name('inscriptions.delivrer-certificat');
     Route::get('/inscriptions/{inscription}/certificat-pdf', [StageFormationController::class, 'certificatPdf'])->name('inscriptions.certificat-pdf');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Routes Portail Parent
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'parent'])->prefix('parent')->name('parent.')->group(function () {
+    Route::get('/', [PortailParentController::class, 'dashboard'])->name('dashboard');
+    Route::get('/enfants', [PortailParentController::class, 'enfants'])->name('enfants');
+    Route::get('/enfants/{athlete}', [PortailParentController::class, 'enfantShow'])->name('enfants.show');
+    Route::get('/enfants/{athlete}/presences', [PortailParentController::class, 'presences'])->name('presences');
+    Route::get('/enfants/{athlete}/suivi-scolaire', [PortailParentController::class, 'suiviScolaire'])->name('suivi-scolaire');
+    Route::get('/enfants/{athlete}/paiements', [PortailParentController::class, 'paiements'])->name('paiements');
+    Route::get('/enfants/{athlete}/performances', [PortailParentController::class, 'performances'])->name('performances');
+    Route::get('/calendrier', [PortailParentController::class, 'calendrier'])->name('calendrier');
+    Route::get('/profil', [PortailParentController::class, 'profil'])->name('profil');
+    Route::put('/profil', [PortailParentController::class, 'updateProfil'])->name('profil.update');
 });
 
 require __DIR__.'/auth.php';

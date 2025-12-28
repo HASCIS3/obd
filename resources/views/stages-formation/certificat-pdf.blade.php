@@ -30,13 +30,13 @@
         /* ========== EN-TÊTE VERT ========== */
         .header-band {
             background: linear-gradient(135deg, #0d3320 0%, #14532d 30%, #166534 70%, #14532d 100%);
-            height: 130px;
+            height: 155px;
             width: 100%;
             position: relative;
         }
         .header-content {
             height: 100%;
-            padding: 15px 25px;
+            padding: 20px 25px;
         }
         .header-row {
             display: table;
@@ -70,31 +70,32 @@
         
         /* Logo centré */
         .logo-circle {
-            width: 85px;
-            height: 85px;
+            width: 95px;
+            height: 95px;
             border-radius: 50%;
             background: #fff;
-            margin: 0 auto 8px;
-            padding: 4px;
+            margin: 0 auto 10px;
+            padding: 5px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
         }
         .logo-circle img {
-            width: 77px;
-            height: 77px;
+            width: 95px;
+            height: 95px;
             border-radius: 50%;
             object-fit: cover;
+            object-position: center center;
         }
         .header-title {
             color: #D4AF37;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             letter-spacing: 4px;
             text-transform: uppercase;
         }
         .header-tagline {
             color: rgba(255,255,255,0.85);
-            font-size: 10px;
-            margin-top: 3px;
+            font-size: 11px;
+            margin-top: 5px;
             letter-spacing: 1px;
         }
         
@@ -127,18 +128,18 @@
         /* ========== BORDURE DÉCORATIVE ========== */
         .border-outer {
             position: absolute;
-            top: 145px;
+            top: 170px;
             left: 12px;
             right: 12px;
-            bottom: 12px;
+            bottom: 50px;
             border: 3px solid #14532d;
         }
         .border-inner {
             position: absolute;
-            top: 150px;
+            top: 175px;
             left: 17px;
             right: 17px;
-            bottom: 17px;
+            bottom: 55px;
             border: 1px solid #D4AF37;
         }
         
@@ -149,10 +150,10 @@
             height: 25px;
             z-index: 5;
         }
-        .corner-tl { top: 150px; left: 17px; border-top: 3px solid #D4AF37; border-left: 3px solid #D4AF37; }
-        .corner-tr { top: 150px; right: 17px; border-top: 3px solid #D4AF37; border-right: 3px solid #D4AF37; }
-        .corner-bl { bottom: 17px; left: 17px; border-bottom: 3px solid #D4AF37; border-left: 3px solid #D4AF37; }
-        .corner-br { bottom: 17px; right: 17px; border-bottom: 3px solid #D4AF37; border-right: 3px solid #D4AF37; }
+        .corner-tl { top: 175px; left: 17px; border-top: 3px solid #D4AF37; border-left: 3px solid #D4AF37; }
+        .corner-tr { top: 175px; right: 17px; border-top: 3px solid #D4AF37; border-right: 3px solid #D4AF37; }
+        .corner-bl { bottom: 55px; left: 17px; border-bottom: 3px solid #D4AF37; border-left: 3px solid #D4AF37; }
+        .corner-br { bottom: 55px; right: 17px; border-bottom: 3px solid #D4AF37; border-right: 3px solid #D4AF37; }
         
         /* ========== CONTENU PRINCIPAL ========== */
         .main-content {
@@ -321,38 +322,46 @@
         /* ========== PIED DE PAGE ========== */
         .footer-section {
             position: absolute;
-            bottom: 25px;
-            left: 35px;
-            right: 35px;
-        }
-        .footer-row {
-            width: 100%;
+            bottom: 15px;
+            left: 20px;
+            right: 20px;
+            height: 35px;
+            background: #fff;
         }
         .footer-left {
-            float: left;
+            position: absolute;
+            left: 0;
+            bottom: 0;
             width: 30%;
             text-align: left;
-            font-size: 9px;
+            font-size: 8px;
             color: #777;
+            line-height: 1.3;
         }
         .footer-center {
-            float: left;
+            position: absolute;
+            left: 30%;
+            bottom: 0;
             width: 40%;
             text-align: center;
-            font-size: 8px;
+            font-size: 7px;
             color: #999;
+            line-height: 1.3;
         }
         .footer-right {
-            float: left;
+            position: absolute;
+            right: 0;
+            bottom: 0;
             width: 30%;
             text-align: right;
-            font-size: 9px;
+            font-size: 8px;
             color: #777;
+            line-height: 1.3;
         }
         .cert-number {
             font-weight: bold;
             color: #14532d;
-            font-size: 10px;
+            font-size: 9px;
         }
     </style>
 </head>
@@ -379,7 +388,7 @@
                         <div class="logo-circle">
                             <img src="{{ public_path('images/logo_obd.jpg') }}" alt="Logo OBD">
                         </div>
-                        <div class="header-title">OLYMPIQUE BAMAKO DISTRICT</div>
+                        <div class="header-title">OLYMPIADE DE BACO-DJICORONI</div>
                         <div class="header-tagline">Centre de Formation Sportive d'Excellence</div>
                     </div>
                     <div class="header-col-right">
@@ -412,7 +421,7 @@
             
             <!-- Certification -->
             <div class="certify-intro">
-                Le Président du Centre Olympique Bamako District certifie que
+                Le Président du Centre d'Olympiade de Baco-Djicoroni (heremakono) certifie que
             </div>
             
             <!-- Récipiendaire -->
@@ -504,19 +513,15 @@
         
         <!-- Pied de page -->
         <div class="footer-section">
-            <div class="footer-row">
-                <div class="footer-left">
-                    <span class="cert-number">N° {{ $inscription->numero_certificat }}</span><br>
-                    Delivre le {{ $inscription->date_delivrance?->format('d/m/Y') ?? now()->format('d/m/Y') }}
-                </div>
-                <div class="footer-center">
-                    Document officiel certifie par OBD<br>
-                    Toute falsification est passible de poursuites
-                </div>
-                <div class="footer-right">
-                    Fait a Bamako<br>
-                    Le {{ $inscription->date_delivrance?->format('d/m/Y') ?? now()->format('d/m/Y') }}
-                </div>
+            <div class="footer-left">
+                <span class="cert-number">{{ $inscription->numero_certificat }}</span><br>
+                Delivre le {{ $inscription->date_delivrance?->format('d/m/Y') ?? now()->format('d/m/Y') }}
+            </div>
+            <div class="footer-center">
+                Document officiel - Olympiade de Baco-Djicoroni
+            </div>
+            <div class="footer-right">
+                Bamako, {{ $inscription->date_delivrance?->format('d/m/Y') ?? now()->format('d/m/Y') }}
             </div>
         </div>
         

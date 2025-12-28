@@ -12,6 +12,7 @@ use App\Services\StatistiqueService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -23,8 +24,13 @@ class DashboardController extends Controller
     /**
      * Affiche le tableau de bord principal (Web ou API)
      */
-    public function index(Request $request): View|JsonResponse
+    public function index(Request $request): View|JsonResponse|RedirectResponse
     {
+        // Rediriger les parents vers leur portail dédié
+        if (auth()->user()->role === 'parent') {
+            return redirect()->route('parent.dashboard');
+        }
+
         // Si c'est une requête API, retourner JSON
         if ($request->is('api/*') || $request->expectsJson()) {
             return $this->apiIndex($request);

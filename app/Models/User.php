@@ -17,6 +17,7 @@ class User extends Authenticatable
 
     public const ROLE_ADMIN = 'admin';
     public const ROLE_COACH = 'coach';
+    public const ROLE_PARENT = 'parent';
 
     public function athlete(): BelongsTo
     {
@@ -87,6 +88,22 @@ class User extends Authenticatable
     public function coach(): HasOne
     {
         return $this->hasOne(Coach::class);
+    }
+
+    /**
+     * Relation avec le profil parent
+     */
+    public function parentProfile(): HasOne
+    {
+        return $this->hasOne(ParentModel::class);
+    }
+
+    /**
+     * Vérifie si l'utilisateur est parent
+     */
+    public function isParent(): bool
+    {
+        return $this->role === self::ROLE_PARENT;
     }
 
     /**

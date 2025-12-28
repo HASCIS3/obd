@@ -28,6 +28,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Rediriger les parents vers leur portail dédié
+        if (Auth::user()->role === 'parent') {
+            return redirect()->intended(route('parent.dashboard', absolute: false));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
