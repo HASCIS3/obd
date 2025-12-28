@@ -266,7 +266,7 @@
                             <select name="coach_id" class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
                                 <option value="">Aucun (nouveau participant)</option>
                                 @foreach($coachs as $coach)
-                                    <option value="{{ $coach->id }}">{{ $coach->nom }} {{ $coach->prenom }}</option>
+                                    <option value="{{ $coach->id }}">{{ $coach->user->name ?? $coach->nom_complet }}</option>
                                 @endforeach
                             </select>
                         </div>

@@ -2,300 +2,524 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{{ $inscription->stageFormation->type_certification_libelle }} - {{ $inscription->numero_certificat }}</title>
+    <title>Diplôme OBD - {{ $inscription->numero_certificat }}</title>
     <style>
         @page {
             margin: 0;
-            size: A4 landscape;
+            size: A4 portrait;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         body {
             font-family: 'DejaVu Sans', sans-serif;
             margin: 0;
-            padding: 40px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            box-sizing: border-box;
+            padding: 0;
+            background: #fff;
         }
-        .certificate {
-            background: white;
-            border: 3px solid #14532d;
-            padding: 40px 60px;
+        .diploma-page {
+            width: 210mm;
+            height: 297mm;
             position: relative;
-            min-height: calc(100vh - 80px);
-            box-sizing: border-box;
+            background: #fff;
+            overflow: hidden;
         }
-        .certificate::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 2px solid #FCD116;
-            pointer-events: none;
+        
+        /* ========== EN-TÊTE VERT ========== */
+        .header-band {
+            background: linear-gradient(135deg, #0d3320 0%, #14532d 30%, #166534 70%, #14532d 100%);
+            height: 130px;
+            width: 100%;
+            position: relative;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
+        .header-content {
+            height: 100%;
+            padding: 15px 25px;
         }
-        .republic {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 5px;
+        .header-row {
+            display: table;
+            width: 100%;
+            height: 100%;
         }
-        .ministry {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .logo-container {
-            margin: 20px 0;
-        }
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto;
-            background: #14532d;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        .certificate-type {
-            font-size: 32px;
-            font-weight: bold;
-            color: #14532d;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin: 20px 0;
-        }
-        .certificate-title {
-            font-size: 18px;
-            color: #CE1126;
-            margin-bottom: 30px;
-        }
-        .content {
-            text-align: center;
-            margin: 30px 0;
-        }
-        .intro-text {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        .recipient-name {
-            font-size: 28px;
-            font-weight: bold;
-            color: #14532d;
-            margin: 20px 0;
-            padding: 10px 0;
-            border-bottom: 2px solid #FCD116;
-            display: inline-block;
-        }
-        .birth-info {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .formation-text {
-            font-size: 14px;
-            color: #333;
-            margin: 20px 0;
-            line-height: 1.8;
-        }
-        .formation-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #14532d;
-            margin: 15px 0;
-        }
-        .details {
-            margin: 30px auto;
-            max-width: 500px;
+        .header-col-left {
+            display: table-cell;
+            width: 25%;
+            vertical-align: middle;
             text-align: left;
-            font-size: 12px;
-            color: #666;
-        }
-        .details-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px dotted #ddd;
-        }
-        .details-label {
-            font-weight: bold;
-        }
-        .note-section {
-            margin: 20px 0;
-            text-align: center;
-        }
-        .note {
-            font-size: 24px;
-            font-weight: bold;
-            color: #14532d;
-        }
-        .note-label {
-            font-size: 12px;
-            color: #666;
-        }
-        .appreciation {
-            font-style: italic;
-            color: #666;
-            margin-top: 10px;
-        }
-        .footer {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-        .footer-left {
-            text-align: left;
-            font-size: 11px;
-            color: #666;
-        }
-        .footer-right {
-            text-align: right;
-        }
-        .signature-line {
-            border-top: 1px solid #333;
-            width: 200px;
-            margin-top: 60px;
-            padding-top: 5px;
-            font-size: 12px;
-            color: #333;
-        }
-        .date-place {
-            font-size: 12px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .certificate-number {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            color: rgba(255,255,255,0.9);
             font-size: 10px;
-            color: #999;
+            line-height: 1.5;
         }
-        .watermark {
+        .header-col-center {
+            display: table-cell;
+            width: 50%;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .header-col-right {
+            display: table-cell;
+            width: 25%;
+            vertical-align: middle;
+            text-align: right;
+            color: rgba(255,255,255,0.9);
+            font-size: 10px;
+            line-height: 1.5;
+        }
+        
+        /* Logo centré */
+        .logo-circle {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: #fff;
+            margin: 0 auto 8px;
+            padding: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .logo-circle img {
+            width: 77px;
+            height: 77px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .header-title {
+            color: #D4AF37;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+        .header-tagline {
+            color: rgba(255,255,255,0.85);
+            font-size: 10px;
+            margin-top: 3px;
+            letter-spacing: 1px;
+        }
+        
+        /* Ligne dorée sous l'en-tête */
+        .gold-line {
+            height: 4px;
+            background: linear-gradient(90deg, transparent 0%, #D4AF37 20%, #F4D03F 50%, #D4AF37 80%, transparent 100%);
+        }
+        
+        /* ========== FILIGRANE ========== */
+        .watermark-container {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 100px;
-            color: rgba(20, 83, 45, 0.05);
-            font-weight: bold;
-            pointer-events: none;
+            transform: translate(-50%, -45%);
             z-index: 0;
+            pointer-events: none;
+        }
+        .watermark-logo {
+            width: 320px;
+            height: 320px;
+            opacity: 0.07;
+        }
+        .watermark-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        /* ========== BORDURE DÉCORATIVE ========== */
+        .border-outer {
+            position: absolute;
+            top: 145px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            border: 3px solid #14532d;
+        }
+        .border-inner {
+            position: absolute;
+            top: 150px;
+            left: 17px;
+            right: 17px;
+            bottom: 17px;
+            border: 1px solid #D4AF37;
+        }
+        
+        /* Coins dorés */
+        .corner-decor {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            z-index: 5;
+        }
+        .corner-tl { top: 150px; left: 17px; border-top: 3px solid #D4AF37; border-left: 3px solid #D4AF37; }
+        .corner-tr { top: 150px; right: 17px; border-top: 3px solid #D4AF37; border-right: 3px solid #D4AF37; }
+        .corner-bl { bottom: 17px; left: 17px; border-bottom: 3px solid #D4AF37; border-left: 3px solid #D4AF37; }
+        .corner-br { bottom: 17px; right: 17px; border-bottom: 3px solid #D4AF37; border-right: 3px solid #D4AF37; }
+        
+        /* ========== CONTENU PRINCIPAL ========== */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            padding: 25px 45px 20px;
+            text-align: center;
+        }
+        
+        /* Type de diplôme */
+        .diploma-type {
+            font-size: 42px;
+            font-weight: bold;
+            color: #14532d;
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            margin-bottom: 5px;
+        }
+        .diploma-type-underline {
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+            margin: 0 auto 10px;
+        }
+        .diploma-intitule {
+            font-size: 14px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
+        /* Texte de certification */
+        .certify-intro {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        /* Nom du récipiendaire */
+        .recipient-block {
+            margin: 15px 0;
+        }
+        .recipient-name {
+            font-size: 34px;
+            font-weight: bold;
+            color: #14532d;
+            letter-spacing: 2px;
+            padding-bottom: 8px;
+            border-bottom: 3px double #D4AF37;
+            display: inline-block;
+        }
+        .recipient-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        /* Texte de formation */
+        .formation-intro {
+            font-size: 12px;
+            color: #444;
+            margin: 18px 0 10px;
+            line-height: 1.6;
+        }
+        .formation-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #14532d;
+            background: rgba(20, 83, 45, 0.06);
+            padding: 10px 25px;
+            border-radius: 5px;
+            display: inline-block;
+            border-left: 4px solid #D4AF37;
+            border-right: 4px solid #D4AF37;
+        }
+        
+        /* Détails de la formation */
+        .details-section {
+            margin: 20px auto;
+            max-width: 420px;
+        }
+        .details-grid {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detail-item {
+            display: table-row;
+        }
+        .detail-label {
+            display: table-cell;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #14532d;
+            text-align: left;
+            width: 35%;
+            border-bottom: 1px dotted #ddd;
+        }
+        .detail-value {
+            display: table-cell;
+            padding: 6px 10px;
+            font-size: 11px;
+            color: #333;
+            text-align: right;
+            border-bottom: 1px dotted #ddd;
+        }
+        .detail-item:last-child .detail-label,
+        .detail-item:last-child .detail-value {
+            border-bottom: none;
+        }
+        
+        /* Note et appréciation */
+        .evaluation-section {
+            margin: 18px 0;
+        }
+        .note-display {
+            display: inline-block;
+            background: linear-gradient(135deg, #14532d 0%, #166534 100%);
+            color: #fff;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(20, 83, 45, 0.3);
+        }
+        .appreciation-text {
+            font-size: 12px;
+            font-style: italic;
+            color: #555;
+            margin-top: 8px;
+        }
+        
+        /* ========== SIGNATURES ========== */
+        .signatures-section {
+            margin-top: 30px;
+            display: table;
+            width: 100%;
+            padding: 0 20px;
+        }
+        .signature-col {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            padding: 0 25px;
+            vertical-align: bottom;
+        }
+        .signature-space {
+            height: 50px;
+        }
+        .signature-line-box {
+            border-top: 1px solid #333;
+            padding-top: 8px;
+        }
+        .signature-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #14532d;
+        }
+        .signature-name {
+            font-size: 10px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        /* ========== PIED DE PAGE ========== */
+        .footer-section {
+            position: absolute;
+            bottom: 25px;
+            left: 35px;
+            right: 35px;
+        }
+        .footer-row {
+            width: 100%;
+        }
+        .footer-left {
+            float: left;
+            width: 30%;
+            text-align: left;
+            font-size: 9px;
+            color: #777;
+        }
+        .footer-center {
+            float: left;
+            width: 40%;
+            text-align: center;
+            font-size: 8px;
+            color: #999;
+        }
+        .footer-right {
+            float: left;
+            width: 30%;
+            text-align: right;
+            font-size: 9px;
+            color: #777;
+        }
+        .cert-number {
+            font-weight: bold;
+            color: #14532d;
+            font-size: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="certificate">
-        <div class="watermark">INJS</div>
+    <div class="diploma-page">
         
-        <div class="header">
-            <div class="republic">RÉPUBLIQUE DU MALI</div>
-            <div class="ministry">Ministère de la Jeunesse et des Sports</div>
-            <div class="ministry">{{ $inscription->stageFormation->organisme }}</div>
-            
-            <div class="certificate-type">
-                {{ $inscription->stageFormation->type_certification_libelle }}
+        <!-- Filigrane central -->
+        <div class="watermark-container">
+            <div class="watermark-logo">
+                <img src="{{ public_path('images/logo_obd.jpg') }}" alt="Filigrane OBD">
             </div>
+        </div>
+        
+        <!-- En-tête vert -->
+        <div class="header-band">
+            <div class="header-content">
+                <div class="header-row">
+                    <div class="header-col-left">
+                        <strong>RÉPUBLIQUE DU MALI</strong><br>
+                        Un Peuple - Un But - Une Foi<br><br>
+                        <em>Ministère de la Jeunesse<br>et des Sports</em>
+                    </div>
+                    <div class="header-col-center">
+                        <div class="logo-circle">
+                            <img src="{{ public_path('images/logo_obd.jpg') }}" alt="Logo OBD">
+                        </div>
+                        <div class="header-title">OLYMPIQUE BAMAKO DISTRICT</div>
+                        <div class="header-tagline">Centre de Formation Sportive d'Excellence</div>
+                    </div>
+                    <div class="header-col-right">
+                        <strong>{{ $inscription->stageFormation->organisme }}</strong><br><br>
+                        <em>Bamako, Mali</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="gold-line"></div>
+        
+        <!-- Bordures décoratives -->
+        <div class="border-outer"></div>
+        <div class="border-inner"></div>
+        <div class="corner-decor corner-tl"></div>
+        <div class="corner-decor corner-tr"></div>
+        <div class="corner-decor corner-bl"></div>
+        <div class="corner-decor corner-br"></div>
+        
+        <!-- Contenu principal -->
+        <div class="main-content">
+            
+            <!-- Type de diplôme -->
+            <div class="diploma-type">{{ $inscription->stageFormation->type_certification_libelle }}</div>
+            <div class="diploma-type-underline"></div>
             
             @if($inscription->stageFormation->intitule_certification)
-                <div class="certificate-title">
-                    {{ $inscription->stageFormation->intitule_certification }}
-                </div>
+                <div class="diploma-intitule">{{ $inscription->stageFormation->intitule_certification }}</div>
             @endif
-        </div>
-
-        <div class="content">
-            <div class="intro-text">
-                Le Directeur de l'Institut National de la Jeunesse et des Sports certifie que
+            
+            <!-- Certification -->
+            <div class="certify-intro">
+                Le Président du Centre Olympique Bamako District certifie que
             </div>
             
-            <div class="recipient-name">
-                {{ $inscription->prenom }} {{ $inscription->nom }}
-            </div>
-            
-            @if($inscription->date_naissance || $inscription->lieu_naissance)
-                <div class="birth-info">
-                    @if($inscription->date_naissance)
-                        Né(e) le {{ $inscription->date_naissance->format('d/m/Y') }}
-                    @endif
-                    @if($inscription->lieu_naissance)
-                        à {{ $inscription->lieu_naissance }}
-                    @endif
-                </div>
-            @endif
-
-            <div class="formation-text">
-                a suivi avec succès le stage de formation
-            </div>
-            
-            <div class="formation-title">
-                « {{ $inscription->stageFormation->titre }} »
-            </div>
-
-            <div class="details">
-                <div class="details-row">
-                    <span class="details-label">Type de formation :</span>
-                    <span>{{ $inscription->stageFormation->type_libelle }}</span>
-                </div>
-                <div class="details-row">
-                    <span class="details-label">Période :</span>
-                    <span>Du {{ $inscription->stageFormation->date_debut->format('d/m/Y') }} au {{ $inscription->stageFormation->date_fin->format('d/m/Y') }}</span>
-                </div>
-                <div class="details-row">
-                    <span class="details-label">Durée :</span>
-                    <span>{{ $inscription->stageFormation->duree_jours }} jours ({{ $inscription->stageFormation->duree_heures ?? '-' }} heures)</span>
-                </div>
-                <div class="details-row">
-                    <span class="details-label">Lieu :</span>
-                    <span>{{ $inscription->stageFormation->lieu }}</span>
-                </div>
-                @if($inscription->stageFormation->discipline)
-                    <div class="details-row">
-                        <span class="details-label">Discipline :</span>
-                        <span>{{ $inscription->stageFormation->discipline->nom }}</span>
+            <!-- Récipiendaire -->
+            <div class="recipient-block">
+                <div class="recipient-name">{{ strtoupper($inscription->prenom) }} {{ strtoupper($inscription->nom) }}</div>
+                @if($inscription->date_naissance || $inscription->lieu_naissance)
+                    <div class="recipient-info">
+                        @if($inscription->date_naissance)
+                            Né(e) le {{ $inscription->date_naissance->format('d/m/Y') }}
+                        @endif
+                        @if($inscription->lieu_naissance)
+                            à {{ $inscription->lieu_naissance }}
+                        @endif
                     </div>
                 @endif
             </div>
-
+            
+            <!-- Formation suivie -->
+            <div class="formation-intro">
+                a suivi avec succès le stage de formation et a satisfait<br>
+                aux épreuves d'évaluation de la formation intitulée :
+            </div>
+            
+            <div class="formation-name">« {{ $inscription->stageFormation->titre }} »</div>
+            
+            <!-- Détails -->
+            <div class="details-section">
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Type de formation</span>
+                        <span class="detail-value">{{ $inscription->stageFormation->type_libelle }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Période</span>
+                        <span class="detail-value">Du {{ $inscription->stageFormation->date_debut->format('d/m/Y') }} au {{ $inscription->stageFormation->date_fin->format('d/m/Y') }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Durée</span>
+                        <span class="detail-value">{{ $inscription->stageFormation->duree_jours }} jours @if($inscription->stageFormation->duree_heures)({{ $inscription->stageFormation->duree_heures }} heures)@endif</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Lieu</span>
+                        <span class="detail-value">{{ $inscription->stageFormation->lieu }}</span>
+                    </div>
+                    @if($inscription->stageFormation->discipline)
+                        <div class="detail-item">
+                            <span class="detail-label">Discipline</span>
+                            <span class="detail-value">{{ $inscription->stageFormation->discipline->nom }}</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            
+            <!-- Note et appréciation -->
             @if($inscription->note_finale)
-                <div class="note-section">
-                    <div class="note-label">Note obtenue</div>
-                    <div class="note">{{ number_format($inscription->note_finale, 2) }} / 20</div>
+                <div class="evaluation-section">
+                    <div class="note-display">Note obtenue : {{ number_format($inscription->note_finale, 2) }} / 20</div>
                     @if($inscription->appreciation)
-                        <div class="appreciation">« {{ $inscription->appreciation }} »</div>
+                        <div class="appreciation-text">« {{ $inscription->appreciation }} »</div>
                     @endif
                 </div>
             @endif
-        </div>
-
-        <div class="footer">
-            <div class="footer-left">
-                <strong>N° {{ $inscription->numero_certificat }}</strong><br>
-                Délivré le {{ $inscription->date_delivrance?->format('d/m/Y') ?? now()->format('d/m/Y') }}
-            </div>
-            <div class="footer-right">
-                <div class="date-place">
-                    Fait à Bamako, le {{ $inscription->date_delivrance?->format('d F Y') ?? now()->format('d F Y') }}
+            
+            <!-- Signatures -->
+            <div class="signatures-section">
+                <div class="signature-col">
+                    <div class="signature-space"></div>
+                    <div class="signature-line-box">
+                        <div class="signature-title">Le Formateur Principal</div>
+                        <div class="signature-name">
+                            @if($inscription->stageFormation->encadreurs && count($inscription->stageFormation->encadreurs) > 0)
+                                {{ $inscription->stageFormation->encadreurs[0] }}
+                            @else
+                                ________________________
+                            @endif
+                        </div>
+                    </div>
                 </div>
-                <div class="signature-line">
-                    Le Directeur de l'INJS
+                <div class="signature-col">
+                    <div class="signature-space"></div>
+                    <div class="signature-line-box">
+                        <div class="signature-title">Le Président du Centre OBD</div>
+                        <div class="signature-name">________________________</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Pied de page -->
+        <div class="footer-section">
+            <div class="footer-row">
+                <div class="footer-left">
+                    <span class="cert-number">N° {{ $inscription->numero_certificat }}</span><br>
+                    Delivre le {{ $inscription->date_delivrance?->format('d/m/Y') ?? now()->format('d/m/Y') }}
+                </div>
+                <div class="footer-center">
+                    Document officiel certifie par OBD<br>
+                    Toute falsification est passible de poursuites
+                </div>
+                <div class="footer-right">
+                    Fait a Bamako<br>
+                    Le {{ $inscription->date_delivrance?->format('d/m/Y') ?? now()->format('d/m/Y') }}
                 </div>
             </div>
         </div>
-
-        <div class="certificate-number">
-            Ce document est authentique - Référence : {{ $inscription->numero_certificat }}
-        </div>
+        
     </div>
 </body>
 </html>

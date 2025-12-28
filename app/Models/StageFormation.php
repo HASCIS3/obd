@@ -108,17 +108,17 @@ class StageFormation extends Model
     // Accesseurs
     public function getTypeLibelleAttribute(): string
     {
-        return self::TYPES[$this->type] ?? $this->type;
+        return self::TYPES[$this->type] ?? $this->type ?? 'Non défini';
     }
 
     public function getStatutLibelleAttribute(): string
     {
-        return self::STATUTS[$this->statut] ?? $this->statut;
+        return self::STATUTS[$this->statut] ?? $this->statut ?? 'Non défini';
     }
 
     public function getTypeCertificationLibelleAttribute(): string
     {
-        return self::TYPES_CERTIFICATION[$this->type_certification] ?? $this->type_certification;
+        return self::TYPES_CERTIFICATION[$this->type_certification] ?? $this->type_certification ?? 'Non défini';
     }
 
     public function getDureeJoursAttribute(): int

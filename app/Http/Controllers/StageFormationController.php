@@ -55,7 +55,7 @@ class StageFormationController extends Controller
     public function create()
     {
         $disciplines = Discipline::orderBy('nom')->get();
-        $coachs = Coach::orderBy('nom')->get();
+        $coachs = Coach::with('user')->get()->sortBy(fn($c) => $c->user->name ?? '');
         
         return view('stages-formation.create', compact('disciplines', 'coachs'));
     }
@@ -93,31 +93,31 @@ class StageFormationController extends Controller
             ->with('success', 'Stage de formation créé avec succès.');
     }
 
-    public function show(StageFormation $stageFormation)
+    public function show(StageFormation $stages_formation)
     {
-        $stageFormation->load(['discipline', 'inscriptions.coach', 'createur']);
+        $stages_formation->load(['discipline', 'inscriptions.coach', 'createur']);
         
         $statsInscrits = [
-            'total' => $stageFormation->inscriptions->count(),
-            'confirmes' => $stageFormation->inscriptions->where('statut', 'confirme')->count(),
-            'en_formation' => $stageFormation->inscriptions->where('statut', 'en_formation')->count(),
-            'diplomes' => $stageFormation->inscriptions->where('statut', 'diplome')->count(),
-            'echecs' => $stageFormation->inscriptions->where('statut', 'echec')->count(),
-            'abandons' => $stageFormation->inscriptions->where('statut', 'abandon')->count(),
+            'total' => $stages_formation->inscriptions->count(),
+            'confirmes' => $stages_formation->inscriptions->where('statut', 'confirme')->count(),
+            'en_formation' => $stages_formation->inscriptions->where('statut', 'en_formation')->count(),
+            'diplomes' => $stages_formation->inscriptions->where('statut', 'diplome')->count(),
+            'echecs' => $stages_formation->inscriptions->where('statut', 'echec')->count(),
+            'abandons' => $stages_formation->inscriptions->where('statut', 'abandon')->count(),
         ];
 
-        return view('stages-formation.show', compact('stageFormation', 'statsInscrits'));
+        return view('stages-formation.show', ['stageFormation' => $stages_formation, 'statsInscrits' => $statsInscrits]);
     }
 
-    public function edit(StageFormation $stageFormation)
+    public function edit(StageFormation $stages_formation)
     {
         $disciplines = Discipline::orderBy('nom')->get();
-        $coachs = Coach::orderBy('nom')->get();
+        $coachs = Coach::with('user')->get()->sortBy(fn($c) => $c->user->name ?? '');
         
-        return view('stages-formation.edit', compact('stageFormation', 'disciplines', 'coachs'));
+        return view('stages-formation.edit', ['stageFormation' => $stages_formation, 'disciplines' => $disciplines, 'coachs' => $coachs]);
     }
 
-    public function update(Request $request, StageFormation $stageFormation)
+    public function update(Request $request, StageFormation $stages_formation)
     {
         $validated = $request->validate([
             'titre' => 'required|string|max:255',
@@ -141,30 +141,30 @@ class StageFormationController extends Controller
             'encadreurs.*' => 'string',
         ]);
 
-        $stageFormation->update($validated);
+        $stages_formation->update($validated);
 
-        return redirect()->route('stages-formation.show', $stageFormation)
+        return redirect()->route('stages-formation.show', $stages_formation)
             ->with('success', 'Stage de formation mis à jour avec succès.');
     }
 
-    public function destroy(StageFormation $stageFormation)
+    public function destroy(StageFormation $stages_formation)
     {
-        $stageFormation->delete();
+        $stages_formation->delete();
 
         return redirect()->route('stages-formation.index')
             ->with('success', 'Stage de formation supprimé avec succès.');
     }
 
     // Gestion des inscriptions
-    public function inscriptions(StageFormation $stageFormation)
+    public function inscriptions(StageFormation $stages_formation)
     {
-        $stageFormation->load(['inscriptions.coach', 'discipline']);
-        $coachs = Coach::orderBy('nom')->get();
+        $stages_formation->load(['inscriptions.coach', 'discipline']);
+        $coachs = Coach::with('user')->get()->sortBy(fn($c) => $c->user->name ?? '');
         
-        return view('stages-formation.inscriptions', compact('stageFormation', 'coachs'));
+        return view('stages-formation.inscriptions', ['stageFormation' => $stages_formation, 'coachs' => $coachs]);
     }
 
-    public function storeInscription(Request $request, StageFormation $stageFormation)
+    public function storeInscription(Request $request, StageFormation $stages_formation)
     {
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
@@ -182,12 +182,12 @@ class StageFormationController extends Controller
             'coach_id' => 'nullable|exists:coachs,id',
         ]);
 
-        $validated['stage_formation_id'] = $stageFormation->id;
+        $validated['stage_formation_id'] = $stages_formation->id;
         $validated['statut'] = 'inscrit';
 
         InscriptionStage::create($validated);
 
-        return redirect()->route('stages-formation.inscriptions', $stageFormation)
+        return redirect()->route('stages-formation.inscriptions', $stages_formation)
             ->with('success', 'Participant inscrit avec succès.');
     }
 
@@ -228,7 +228,7 @@ class StageFormationController extends Controller
         $inscription->load(['stageFormation.discipline']);
         
         $pdf = Pdf::loadView('stages-formation.certificat-pdf', compact('inscription'));
-        $pdf->setPaper('A4', 'landscape');
+        $pdf->setPaper('A4', 'portrait');
         
         $filename = 'certificat_' . $inscription->numero_certificat . '.pdf';
         
@@ -236,25 +236,25 @@ class StageFormationController extends Controller
     }
 
     // Liste des diplômés
-    public function diplomes(StageFormation $stageFormation)
+    public function diplomes(StageFormation $stages_formation)
     {
-        $diplomes = $stageFormation->inscriptions()
+        $diplomes = $stages_formation->inscriptions()
             ->where('statut', 'diplome')
             ->orderBy('nom')
             ->get();
         
-        return view('stages-formation.diplomes', compact('stageFormation', 'diplomes'));
+        return view('stages-formation.diplomes', ['stageFormation' => $stages_formation, 'diplomes' => $diplomes]);
     }
 
     // Export PDF liste des participants
-    public function listeParticipantsPdf(StageFormation $stageFormation)
+    public function listeParticipantsPdf(StageFormation $stages_formation)
     {
-        $stageFormation->load(['inscriptions', 'discipline']);
+        $stages_formation->load(['inscriptions', 'discipline']);
         
-        $pdf = Pdf::loadView('stages-formation.liste-participants-pdf', compact('stageFormation'));
+        $pdf = Pdf::loadView('stages-formation.liste-participants-pdf', ['stageFormation' => $stages_formation]);
         $pdf->setPaper('A4', 'portrait');
         
-        $filename = 'participants_' . $stageFormation->code . '.pdf';
+        $filename = 'participants_' . $stages_formation->code . '.pdf';
         
         return $pdf->download($filename);
     }

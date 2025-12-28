@@ -223,10 +223,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('/calendrier/evenements/{evenement}', [CalendrierController::class, 'destroy'])->name('calendrier.destroy');
 
     // Stages de formation
-    Route::get('/stages-formation/{stageFormation}/inscriptions', [StageFormationController::class, 'inscriptions'])->name('stages-formation.inscriptions');
-    Route::post('/stages-formation/{stageFormation}/inscriptions', [StageFormationController::class, 'storeInscription'])->name('stages-formation.inscriptions.store');
-    Route::get('/stages-formation/{stageFormation}/diplomes', [StageFormationController::class, 'diplomes'])->name('stages-formation.diplomes');
-    Route::get('/stages-formation/{stageFormation}/liste-participants-pdf', [StageFormationController::class, 'listeParticipantsPdf'])->name('stages-formation.liste-participants-pdf');
+    Route::get('/stages-formation/{stages_formation}/inscriptions', [StageFormationController::class, 'inscriptions'])->name('stages-formation.inscriptions');
+    Route::post('/stages-formation/{stages_formation}/inscriptions', [StageFormationController::class, 'storeInscription'])->name('stages-formation.inscriptions.store');
+    Route::get('/stages-formation/{stages_formation}/diplomes', [StageFormationController::class, 'diplomes'])->name('stages-formation.diplomes');
+    Route::get('/stages-formation/{stages_formation}/liste-participants-pdf', [StageFormationController::class, 'listeParticipantsPdf'])->name('stages-formation.liste-participants-pdf');
     Route::resource('stages-formation', StageFormationController::class);
     
     // Inscriptions aux stages
