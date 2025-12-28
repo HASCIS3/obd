@@ -19,6 +19,7 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\StageFormationController;
 use App\Http\Controllers\PortailParentController;
+use App\Http\Controllers\PortailAthleteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -235,6 +236,21 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('/inscriptions/{inscription}', [StageFormationController::class, 'destroyInscription'])->name('inscriptions.destroy');
     Route::post('/inscriptions/{inscription}/delivrer-certificat', [StageFormationController::class, 'delivrerCertificat'])->name('inscriptions.delivrer-certificat');
     Route::get('/inscriptions/{inscription}/certificat-pdf', [StageFormationController::class, 'certificatPdf'])->name('inscriptions.certificat-pdf');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Routes Portail Athlète
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'athlete'])->prefix('athlete')->name('athlete.')->group(function () {
+    Route::get('/', [PortailAthleteController::class, 'dashboard'])->name('dashboard');
+    Route::get('/presences', [PortailAthleteController::class, 'presences'])->name('presences');
+    Route::get('/suivi-scolaire', [PortailAthleteController::class, 'suiviScolaire'])->name('suivi-scolaire');
+    Route::get('/paiements', [PortailAthleteController::class, 'paiements'])->name('paiements');
+    Route::get('/performances', [PortailAthleteController::class, 'performances'])->name('performances');
+    Route::get('/calendrier', [PortailAthleteController::class, 'calendrier'])->name('calendrier');
+    Route::get('/profil', [PortailAthleteController::class, 'profil'])->name('profil');
 });
 
 /*

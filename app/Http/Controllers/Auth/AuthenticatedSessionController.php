@@ -33,6 +33,11 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('parent.dashboard', absolute: false));
         }
 
+        // Rediriger les athlètes vers leur portail dédié
+        if (Auth::user()->isAthlete()) {
+            return redirect()->intended(route('athlete.dashboard', absolute: false));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

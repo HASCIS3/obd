@@ -39,8 +39,8 @@
                     <p class="font-medium">{{ $athlete->date_naissance ? $athlete->date_naissance->age . ' ans' : '-' }}</p>
                 </div>
                 <div>
-                    <span class="text-gray-500">Coach</span>
-                    <p class="font-medium">{{ $athlete->coach->nom_complet ?? 'Non assigne' }}</p>
+                    <span class="text-gray-500">Discipline</span>
+                    <p class="font-medium">{{ $athlete->disciplines->first()->nom ?? 'Non assigne' }}</p>
                 </div>
                 <div>
                     <span class="text-gray-500">Categorie</span>

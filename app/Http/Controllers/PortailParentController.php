@@ -25,7 +25,7 @@ class PortailParentController extends Controller
                 ->with('error', 'Profil parent non trouvé.');
         }
 
-        $enfants = $parent->athletes()->with(['disciplines', 'certificatMedical'])->get();
+        $enfants = $parent->athletes()->with(['disciplines', 'certificatsMedicaux'])->get();
         
         // Statistiques globales
         $stats = [
@@ -57,7 +57,7 @@ class PortailParentController extends Controller
     {
         $parent = auth()->user()->parentProfile;
         $enfants = $parent->athletes()
-            ->with(['disciplines', 'certificatMedical', 'presences' => function($q) {
+            ->with(['disciplines', 'certificatsMedicaux', 'presences' => function($q) {
                 $q->orderBy('date', 'desc')->limit(5);
             }])
             ->get();
@@ -77,7 +77,7 @@ class PortailParentController extends Controller
             abort(403, 'Vous n\'avez pas accès à ce profil.');
         }
 
-        $athlete->load(['disciplines', 'certificatMedical', 'coach']);
+        $athlete->load(['disciplines', 'certificatsMedicaux']);
 
         // Statistiques de l'enfant
         $stats = [
@@ -195,11 +195,19 @@ class PortailParentController extends Controller
     public function calendrier()
     {
         $parent = auth()->user()->parentProfile;
-        $enfants = $parent->athletes()->pluck('discipline_id')->unique();
+        
+        // Récupérer les IDs des disciplines des enfants via la table pivot
+        $disciplineIds = [];
+        foreach ($parent->athletes as $athlete) {
+            foreach ($athlete->disciplines as $discipline) {
+                $disciplineIds[] = $discipline->id;
+            }
+        }
+        $disciplineIds = array_unique($disciplineIds);
 
         $evenements = Evenement::where('date_debut', '>=', now()->subMonth())
-            ->where(function($q) use ($enfants) {
-                $q->whereIn('discipline_id', $enfants)
+            ->where(function($q) use ($disciplineIds) {
+                $q->whereIn('discipline_id', $disciplineIds)
                   ->orWhereNull('discipline_id');
             })
             ->orderBy('date_debut')
