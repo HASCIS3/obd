@@ -17,6 +17,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\SaisonController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\CalendrierController;
+use App\Http\Controllers\StageFormationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -220,6 +221,19 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/calendrier/evenements/{evenement}', [CalendrierController::class, 'show'])->name('calendrier.show');
     Route::put('/calendrier/evenements/{evenement}', [CalendrierController::class, 'update'])->name('calendrier.update');
     Route::delete('/calendrier/evenements/{evenement}', [CalendrierController::class, 'destroy'])->name('calendrier.destroy');
+
+    // Stages de formation
+    Route::get('/stages-formation/{stageFormation}/inscriptions', [StageFormationController::class, 'inscriptions'])->name('stages-formation.inscriptions');
+    Route::post('/stages-formation/{stageFormation}/inscriptions', [StageFormationController::class, 'storeInscription'])->name('stages-formation.inscriptions.store');
+    Route::get('/stages-formation/{stageFormation}/diplomes', [StageFormationController::class, 'diplomes'])->name('stages-formation.diplomes');
+    Route::get('/stages-formation/{stageFormation}/liste-participants-pdf', [StageFormationController::class, 'listeParticipantsPdf'])->name('stages-formation.liste-participants-pdf');
+    Route::resource('stages-formation', StageFormationController::class);
+    
+    // Inscriptions aux stages
+    Route::put('/inscriptions/{inscription}', [StageFormationController::class, 'updateInscription'])->name('inscriptions.update');
+    Route::delete('/inscriptions/{inscription}', [StageFormationController::class, 'destroyInscription'])->name('inscriptions.destroy');
+    Route::post('/inscriptions/{inscription}/delivrer-certificat', [StageFormationController::class, 'delivrerCertificat'])->name('inscriptions.delivrer-certificat');
+    Route::get('/inscriptions/{inscription}/certificat-pdf', [StageFormationController::class, 'certificatPdf'])->name('inscriptions.certificat-pdf');
 });
 
 require __DIR__.'/auth.php';

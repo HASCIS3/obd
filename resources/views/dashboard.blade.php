@@ -8,322 +8,443 @@
                     Tableau de bord
                 </h2>
                 <p class="mt-1 text-sm text-gray-500">
-                    Bienvenue, {{ auth()->user()->name }} ! Voici un apercu de votre centre sportif.
+                    Bienvenue, <span class="font-semibold text-primary-600">{{ auth()->user()->name }}</span> ! Vue d'ensemble de votre centre sportif.
                 </p>
             </div>
-            <div class="mt-4 sm:mt-0">
-                <span class="text-sm text-gray-500">{{ now()->format('l d F Y') }}</span>
+            <div class="mt-4 sm:mt-0 flex items-center gap-3">
+                <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {{ now()->translatedFormat('l d F Y') }}
+                </span>
             </div>
         </div>
     </x-slot>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Accès rapides -->
+        <div class="mb-8">
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('athletes.create') }}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition shadow-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    Nouvel athlète
+                </a>
+                <a href="{{ route('presences.create') }}" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition border shadow-sm">
+                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    Saisir présences
+                </a>
+                <a href="{{ route('paiements.create') }}" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition border shadow-sm">
+                    <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Enregistrer paiement
+                </a>
+                <a href="{{ route('performances.create') }}" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition border shadow-sm">
+                    <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Ajouter performance
+                </a>
+                <a href="{{ route('calendrier.index') }}" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition border shadow-sm">
+                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Calendrier
+                </a>
+            </div>
+        </div>
+
         <!-- Statistiques principales -->
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-            <x-stat-card 
-                title="Athletes actifs" 
-                :value="$stats['total_athletes']"
-                color="primary"
-            >
-                <x-slot name="icon">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </x-slot>
-            </x-stat-card>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            <div class="bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl p-5 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-100 text-sm font-medium">Athlètes actifs</p>
+                        <p class="text-3xl font-bold mt-1">{{ $stats['total_athletes'] }}</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <a href="{{ route('athletes.index') }}" class="mt-3 inline-flex items-center text-xs text-primary-100 hover:text-white">
+                    Voir tous <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
 
-            <x-stat-card 
-                title="Coachs" 
-                :value="$stats['total_coachs']"
-                color="secondary"
-            >
-                <x-slot name="icon">
-                    <svg class="h-6 w-6 text-primary-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </x-slot>
-            </x-stat-card>
+            <div class="bg-secondary-500 rounded-xl p-5 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-secondary-900 text-sm font-medium">Coachs</p>
+                        <p class="text-3xl font-bold mt-1 text-secondary-900">{{ $stats['total_coachs'] }}</p>
+                    </div>
+                    <div class="bg-secondary-600 rounded-full p-3">
+                        <svg class="h-6 w-6 text-secondary-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </div>
+                <a href="{{ route('coachs.index') }}" class="mt-3 inline-flex items-center text-xs text-secondary-800 hover:text-secondary-900 font-medium">
+                    Gérer <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
 
-            <x-stat-card 
-                title="Disciplines" 
-                :value="$stats['total_disciplines']"
-                color="info"
-            >
-                <x-slot name="icon">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                </x-slot>
-            </x-stat-card>
+            <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-5 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium">Disciplines</p>
+                        <p class="text-3xl font-bold mt-1">{{ $stats['total_disciplines'] }}</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                </div>
+                <a href="{{ route('disciplines.index') }}" class="mt-3 inline-flex items-center text-xs text-blue-100 hover:text-white">
+                    Voir <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
 
-            <x-stat-card 
-                title="Arrieres (FCFA)" 
-                :value="number_format($stats['arrieres_total'], 0, ',', ' ')"
-                color="danger"
-            >
-                <x-slot name="icon">
-                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </x-slot>
-            </x-stat-card>
+            <div class="bg-danger-500 rounded-xl p-5 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-danger-50 text-sm font-medium">Arriérés</p>
+                        <p class="text-2xl font-bold mt-1">{{ number_format($stats['arrieres_total'], 0, ',', ' ') }}</p>
+                        <p class="text-xs text-danger-100">FCFA</p>
+                    </div>
+                    <div class="bg-danger-600 rounded-full p-3">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <a href="{{ route('paiements.arrieres') }}" class="mt-3 inline-flex items-center text-xs text-danger-100 hover:text-white font-medium">
+                    Détails <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
         </div>
 
         <!-- Graphiques et listes -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <!-- Graphique des presences -->
-            <x-card title="Presences du mois">
-                <div class="h-64">
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Présences du mois</h3>
+                    <a href="{{ route('presences.index') }}" class="text-xs text-primary-600 hover:underline">Détails</a>
+                </div>
+                <div class="h-48">
                     <canvas id="presencesChart"></canvas>
                 </div>
-            </x-card>
+                <div class="mt-4 grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-green-50 rounded-lg p-3">
+                        <p class="text-2xl font-bold text-green-600">{{ $stats['presences_mois'] }}</p>
+                        <p class="text-xs text-green-700">Présents</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-3">
+                        <p class="text-2xl font-bold text-red-600">{{ $stats['absences_mois'] }}</p>
+                        <p class="text-xs text-red-700">Absents</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performances sportives -->
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Performances</h3>
+                    <a href="{{ route('performances.index') }}" class="text-xs text-primary-600 hover:underline">Voir tout</a>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">⚽</span>
+                            <div>
+                                <p class="font-semibold text-blue-800">{{ $statsPerformance['matchs']['total'] }} matchs</p>
+                                <p class="text-xs text-blue-600">
+                                    <span class="text-green-600">{{ $statsPerformance['matchs']['victoires'] }}V</span> · 
+                                    <span class="text-red-600">{{ $statsPerformance['matchs']['defaites'] }}D</span> · 
+                                    <span class="text-yellow-600">{{ $statsPerformance['matchs']['nuls'] }}N</span>
+                                </p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-blue-700">{{ $statsPerformance['matchs']['taux_victoire'] }}%</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">🏅</span>
+                            <div>
+                                <p class="font-semibold text-yellow-800">Médailles</p>
+                                <p class="text-xs text-yellow-600">Compétitions</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-1">
+                            <span class="bg-yellow-200 px-2 py-1 rounded text-sm">🥇{{ $statsPerformance['competitions']['medailles_or'] }}</span>
+                            <span class="bg-gray-200 px-2 py-1 rounded text-sm">🥈{{ $statsPerformance['competitions']['medailles_argent'] }}</span>
+                            <span class="bg-orange-200 px-2 py-1 rounded text-sm">🥉{{ $statsPerformance['competitions']['medailles_bronze'] }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">📊</span>
+                            <div>
+                                <p class="font-semibold text-purple-800">Note moyenne</p>
+                                <p class="text-xs text-purple-600">Évaluations</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-purple-700">{{ $statsPerformance['note_moyenne'] }}/10</span>
+                    </div>
+                </div>
+            </div>
 
             <!-- Derniers athletes inscrits -->
-            <x-card title="Derniers athletes inscrits">
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Nouveaux athlètes</h3>
+                    <a href="{{ route('athletes.index') }}" class="text-xs text-primary-600 hover:underline">Voir tous</a>
+                </div>
                 @if($derniersAthletes->count() > 0)
-                    <ul class="divide-y divide-gray-200">
-                        @foreach($derniersAthletes as $athlete)
-                            <li class="py-3 flex items-center justify-between">
+                    <ul class="space-y-3">
+                        @foreach($derniersAthletes->take(5) as $athlete)
+                            <li class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition">
                                 <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden bg-gray-200">
                                         @if($athlete->photo_url)
                                             <img src="{{ $athlete->photo_url }}" alt="{{ $athlete->nom_complet }}" class="h-10 w-10 object-cover">
                                         @else
-                                            <img src="{{ asset('images/default-avatar.svg') }}" alt="{{ $athlete->nom_complet }}" class="h-10 w-10 object-cover">
+                                            <div class="h-10 w-10 flex items-center justify-center bg-primary-100 text-primary-600 font-semibold">
+                                                {{ substr($athlete->prenom, 0, 1) }}{{ substr($athlete->nom, 0, 1) }}
+                                            </div>
                                         @endif
                                     </div>
                                     <div class="ml-3">
                                         <p class="text-sm font-medium text-gray-900">{{ $athlete->nom_complet }}</p>
                                         <p class="text-xs text-gray-500">
-                                            {{ $athlete->disciplines->pluck('nom')->join(', ') ?: 'Aucune discipline' }}
+                                            {{ $athlete->disciplines->pluck('nom')->first() ?: 'Aucune discipline' }}
                                         </p>
                                     </div>
                                 </div>
-                                <a href="{{ route('athletes.show', $athlete) }}" class="text-primary-600 hover:text-primary-800 text-sm">
-                                    Voir
+                                <a href="{{ route('athletes.show', $athlete) }}" class="text-primary-600 hover:text-primary-800">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
                                 </a>
                             </li>
                         @endforeach
                     </ul>
                 @else
-                    <x-empty-state 
-                        title="Aucun athlete" 
-                        description="Commencez par ajouter des athletes."
-                    />
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <p class="mt-2 text-sm">Aucun athlète inscrit</p>
+                    </div>
                 @endif
-            </x-card>
+            </div>
         </div>
 
-        <!-- Section Performances -->
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Performances sportives</h3>
-            <a href="{{ route('performances.index') }}" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
-                Voir tout &rarr;
-            </a>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-8">
-            <x-card class="bg-blue-50 border-blue-200">
-                <div class="text-center">
-                    <div class="text-2xl mb-1">⚽</div>
-                    <p class="text-xs font-medium text-blue-600">Matchs joues</p>
-                    <p class="text-2xl font-bold text-blue-800">{{ $statsPerformance['matchs']['total'] }}</p>
-                    <div class="mt-1 flex justify-center gap-1 text-xs">
-                        <span class="text-green-600">{{ $statsPerformance['matchs']['victoires'] }}V</span>
-                        <span class="text-red-600">{{ $statsPerformance['matchs']['defaites'] }}D</span>
-                        <span class="text-yellow-600">{{ $statsPerformance['matchs']['nuls'] }}N</span>
+        <!-- Section Finances et Activités récentes -->
+        @if(auth()->user()->isAdmin())
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Paiements recents -->
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Paiements récents
+                    </h3>
+                    <a href="{{ route('paiements.index') }}" class="text-xs text-primary-600 hover:underline">Voir tous</a>
+                </div>
+                @if($paiementsRecents->count() > 0)
+                    <ul class="space-y-3">
+                        @foreach($paiementsRecents->take(5) as $paiement)
+                            <li class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ $paiement->athlete->nom_complet }}</p>
+                                    <p class="text-xs text-gray-500">{{ $paiement->date_paiement?->format('d/m/Y') }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-green-600">
+                                        +{{ number_format($paiement->montant_paye, 0, ',', ' ') }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">FCFA</p>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <p class="mt-2 text-sm">Aucun paiement récent</p>
                     </div>
-                </div>
-            </x-card>
+                @endif
+            </div>
 
-            <x-card class="bg-green-50 border-green-200">
-                <div class="text-center">
-                    <div class="text-2xl mb-1">🏆</div>
-                    <p class="text-xs font-medium text-green-600">Taux de victoire</p>
-                    <p class="text-2xl font-bold text-green-800">{{ $statsPerformance['matchs']['taux_victoire'] }}%</p>
+            <!-- Athletes avec arrieres -->
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Arriérés de paiement
+                    </h3>
+                    <a href="{{ route('paiements.arrieres') }}" class="text-xs text-red-600 hover:underline">Voir tous</a>
                 </div>
-            </x-card>
-
-            <x-card class="bg-yellow-50 border-yellow-200">
-                <div class="text-center">
-                    <div class="text-2xl mb-1">🏅</div>
-                    <p class="text-xs font-medium text-yellow-600">Medailles</p>
-                    <div class="flex justify-center gap-2 mt-1">
-                        <span class="text-sm">🥇{{ $statsPerformance['competitions']['medailles_or'] }}</span>
-                        <span class="text-sm">🥈{{ $statsPerformance['competitions']['medailles_argent'] }}</span>
-                        <span class="text-sm">🥉{{ $statsPerformance['competitions']['medailles_bronze'] }}</span>
+                @if($athletesArrieres->count() > 0)
+                    <ul class="space-y-3">
+                        @foreach($athletesArrieres->take(5) as $athlete)
+                            @php
+                                $totalArrieres = $athlete->paiements->sum('montant') - $athlete->paiements->sum('montant_paye');
+                            @endphp
+                            <li class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-9 w-9 rounded-full overflow-hidden ring-2 ring-red-200">
+                                        @if($athlete->photo_url)
+                                            <img src="{{ $athlete->photo_url }}" alt="{{ $athlete->nom_complet }}" class="h-9 w-9 object-cover">
+                                        @else
+                                            <div class="h-9 w-9 flex items-center justify-center bg-red-100 text-red-600 font-semibold text-sm">
+                                                {{ substr($athlete->prenom, 0, 1) }}{{ substr($athlete->nom, 0, 1) }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">{{ $athlete->nom_complet }}</p>
+                                        <p class="text-xs text-gray-500">{{ $athlete->paiements->count() }} mois impayé(s)</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-red-600">
+                                        {{ number_format($totalArrieres, 0, ',', ' ') }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">FCFA</p>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="text-center py-8">
+                        <div class="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <p class="mt-2 text-sm text-green-600 font-medium">Tous les paiements sont à jour !</p>
                     </div>
-                </div>
-            </x-card>
-
-            <x-card class="bg-purple-50 border-purple-200">
-                <div class="text-center">
-                    <div class="text-2xl mb-1">📊</div>
-                    <p class="text-xs font-medium text-purple-600">Note moyenne</p>
-                    <p class="text-2xl font-bold text-purple-800">{{ $statsPerformance['note_moyenne'] }}/10</p>
-                </div>
-            </x-card>
+                @endif
+            </div>
         </div>
+        @endif
 
         <!-- Dernières performances -->
-        <x-card title="Dernieres performances" class="mb-8">
+        <div class="bg-white rounded-xl shadow-sm border mb-8">
+            <div class="p-6 border-b">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Dernières performances
+                    </h3>
+                    <a href="{{ route('performances.index') }}" class="text-xs text-primary-600 hover:underline">Voir toutes</a>
+                </div>
+            </div>
             @if($dernieresPerformances->count() > 0)
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Athlete</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Contexte</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Note</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Athlète</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contexte</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Détails</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Note</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @foreach($dernieresPerformances as $perf)
-                                <tr>
-                                    <td class="px-4 py-2">
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach($dernieresPerformances->take(5) as $perf)
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4">
                                         <a href="{{ route('athletes.show', $perf->athlete) }}" class="text-sm font-medium text-gray-900 hover:text-primary-600">
                                             {{ $perf->athlete->nom_complet }}
                                         </a>
                                     </td>
-                                    <td class="px-4 py-2">
+                                    <td class="px-6 py-4">
                                         @if($perf->contexte === 'match')
                                             @if($perf->resultat_match === 'victoire')
-                                                <x-badge color="success">Victoire</x-badge>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">✓ Victoire</span>
                                             @elseif($perf->resultat_match === 'defaite')
-                                                <x-badge color="danger">Defaite</x-badge>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">✗ Défaite</span>
                                             @else
-                                                <x-badge color="warning">Nul</x-badge>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">= Nul</span>
                                             @endif
                                         @elseif($perf->contexte === 'competition')
                                             @if($perf->medaille)
-                                                <span>
+                                                <span class="text-lg">
                                                     @if($perf->medaille === 'or')🥇
                                                     @elseif($perf->medaille === 'argent')🥈
                                                     @else🥉
                                                     @endif
                                                 </span>
                                             @else
-                                                <x-badge color="info">Competition</x-badge>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Compétition</span>
                                             @endif
                                         @elseif($perf->contexte === 'entrainement')
-                                            <x-badge color="gray">Entrainement</x-badge>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Entraînement</span>
                                         @else
-                                            <x-badge color="purple">Test</x-badge>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Test</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-2 text-sm text-gray-500">
+                                    <td class="px-6 py-4 text-sm text-gray-600">
                                         @if($perf->adversaire)
                                             vs {{ $perf->adversaire }}
-                                            @if($perf->score_match) ({{ $perf->score_match }}) @endif
+                                            @if($perf->score_match) <span class="font-medium">({{ $perf->score_match }})</span> @endif
                                         @elseif($perf->competition)
                                             {{ $perf->competition }}
                                         @else
                                             {{ $perf->type_evaluation ?? '-' }}
                                         @endif
                                     </td>
-                                    <td class="px-4 py-2 text-sm text-gray-500">{{ $perf->date_evaluation->format('d/m/Y') }}</td>
-                                    <td class="px-4 py-2 text-sm font-medium {{ $perf->note_globale >= 7 ? 'text-green-600' : ($perf->note_globale >= 5 ? 'text-yellow-600' : 'text-red-600') }}">
-                                        {{ $perf->note_globale ? $perf->note_globale.'/10' : '-' }}
+                                    <td class="px-6 py-4 text-sm text-gray-500">{{ $perf->date_evaluation->format('d/m/Y') }}</td>
+                                    <td class="px-6 py-4 text-center">
+                                        @if($perf->note_globale)
+                                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold {{ $perf->note_globale >= 7 ? 'bg-green-100 text-green-700' : ($perf->note_globale >= 5 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
+                                                {{ $perf->note_globale }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <a href="{{ route('performances.index') }}" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
-                        Voir toutes les performances &rarr;
-                    </a>
-                </div>
             @else
-                <x-empty-state 
-                    title="Aucune performance" 
-                    description="Les performances apparaitront ici."
-                >
-                    <x-button href="{{ route('performances.create') }}" variant="primary" size="sm">
-                        Ajouter une performance
-                    </x-button>
-                </x-empty-state>
-            @endif
-        </x-card>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Paiements recents -->
-            @if(auth()->user()->isAdmin())
-            <x-card title="Paiements recents">
-                @if($paiementsRecents->count() > 0)
-                    <ul class="divide-y divide-gray-200">
-                        @foreach($paiementsRecents as $paiement)
-                            <li class="py-3 flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $paiement->athlete->nom_complet }}</p>
-                                    <p class="text-xs text-gray-500">{{ $paiement->date_paiement?->format('d/m/Y') }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-semibold text-green-600">
-                                        {{ number_format($paiement->montant_paye, 0, ',', ' ') }} FCFA
-                                    </p>
-                                    <x-badge color="success" size="sm">Paye</x-badge>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <a href="{{ route('paiements.index') }}" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
-                            Voir tous les paiements &rarr;
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Aucune performance enregistrée</h3>
+                    <p class="mt-1 text-sm text-gray-500">Commencez par ajouter des performances.</p>
+                    <div class="mt-4">
+                        <a href="{{ route('performances.create') }}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Ajouter une performance
                         </a>
                     </div>
-                @else
-                    <x-empty-state 
-                        title="Aucun paiement" 
-                        description="Les paiements recents apparaitront ici."
-                    />
-                @endif
-            </x-card>
-
-            <!-- Athletes avec arrieres -->
-            <x-card title="Athletes avec arrieres">
-                @if($athletesArrieres->count() > 0)
-                    <ul class="divide-y divide-gray-200">
-                        @foreach($athletesArrieres as $athlete)
-                            @php
-                                $totalArrieres = $athlete->paiements->sum('montant') - $athlete->paiements->sum('montant_paye');
-                            @endphp
-                            <li class="py-3 flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-full overflow-hidden ring-2 ring-danger-200">
-                                        @if($athlete->photo_url)
-                                            <img src="{{ $athlete->photo_url }}" alt="{{ $athlete->nom_complet }}" class="h-10 w-10 object-cover">
-                                        @else
-                                            <img src="{{ asset('images/default-avatar.svg') }}" alt="{{ $athlete->nom_complet }}" class="h-10 w-10 object-cover">
-                                        @endif
-                                    </div>
-                                    <div class="ml-3">
-                                        <p class="text-sm font-medium text-gray-900">{{ $athlete->nom_complet }}</p>
-                                        <p class="text-xs text-gray-500">{{ $athlete->paiements->count() }} mois impaye(s)</p>
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-semibold text-danger-600">
-                                        {{ number_format($totalArrieres, 0, ',', ' ') }} FCFA
-                                    </p>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <a href="{{ route('paiements.arrieres') }}" class="text-sm text-danger-600 hover:text-danger-800 font-medium">
-                            Voir tous les arrieres &rarr;
-                        </a>
-                    </div>
-                @else
-                    <x-empty-state 
-                        title="Aucun arriere" 
-                        description="Tous les paiements sont a jour !"
-                    />
-                @endif
-            </x-card>
+                </div>
             @endif
         </div>
     </div>

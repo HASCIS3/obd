@@ -27,6 +27,7 @@
             <div class="flex flex-wrap gap-4">
                 <div class="flex-1 min-w-[200px]">
                     <x-select 
+                        name="filter_type"
                         id="filter-type"
                         :options="[
                             ['id' => 'entrainement', 'name' => 'Entraînement'],
@@ -40,6 +41,7 @@
                 </div>
                 <div class="flex-1 min-w-[200px]">
                     <x-select 
+                        name="filter_discipline"
                         id="filter-discipline"
                         :options="$disciplines->map(fn($d) => ['id' => $d->id, 'name' => $d->nom])->toArray()"
                         placeholder="Toutes les disciplines"
