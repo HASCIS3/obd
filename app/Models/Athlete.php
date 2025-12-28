@@ -103,6 +103,56 @@ class Athlete extends Model
         return $this->hasMany(Performance::class);
     }
 
+    /**
+     * Les licences de l'athlète
+     */
+    public function licences(): HasMany
+    {
+        return $this->hasMany(Licence::class);
+    }
+
+    /**
+     * Les certificats médicaux de l'athlète
+     */
+    public function certificatsMedicaux(): HasMany
+    {
+        return $this->hasMany(CertificatMedical::class);
+    }
+
+    /**
+     * Le certificat médical valide de l'athlète
+     */
+    public function certificatMedicalValide(): ?CertificatMedical
+    {
+        return $this->certificatsMedicaux()
+            ->where('statut', CertificatMedical::STATUT_VALIDE)
+            ->where('date_expiration', '>=', now())
+            ->first();
+    }
+
+    /**
+     * Vérifie si l'athlète est apte médicalement
+     */
+    public function estApteMedicalement(): bool
+    {
+        $certificat = $this->certificatMedicalValide();
+        return $certificat && $certificat->apte_competition && $certificat->apte_entrainement;
+    }
+
+    /**
+     * La licence active de l'athlète pour une discipline
+     */
+    public function licenceActive(?Discipline $discipline = null): ?Licence
+    {
+        $query = $this->licences()->where('statut', Licence::STATUT_ACTIVE);
+        
+        if ($discipline) {
+            $query->where('discipline_id', $discipline->id);
+        }
+        
+        return $query->first();
+    }
+
     // ==================== SCOPES ====================
 
     /**

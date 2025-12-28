@@ -19,12 +19,14 @@ use App\Http\Controllers\DashboardController;
 |
 */
 
-// Routes publiques
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+// Routes publiques avec rate limiting strict (5 tentatives par minute)
+Route::middleware('throttle:5,1')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+});
 
-// Routes protégées
-Route::middleware('auth:sanctum')->group(function () {
+// Routes protégées avec rate limiting (60 requêtes par minute)
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);

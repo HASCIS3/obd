@@ -9,11 +9,37 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
+use OpenApi\Annotations as OA;
 
 class AuthController extends Controller
 {
     /**
      * Connexion utilisateur
+     * 
+     * @OA\Post(
+     *     path="/login",
+     *     tags={"Authentification"},
+     *     summary="Connexion utilisateur",
+     *     description="Authentifie un utilisateur et retourne un token d'accès",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "password"},
+     *             @OA\Property(property="email", type="string", format="email", example="admin@centresport.ml"),
+     *             @OA\Property(property="password", type="string", format="password", example="password")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Connexion réussie",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="token", type="string", example="1|abc123..."),
+     *             @OA\Property(property="user", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(response=422, description="Identifiants incorrects"),
+     *     @OA\Response(response=429, description="Trop de tentatives")
+     * )
      */
     public function login(Request $request)
     {
@@ -44,6 +70,16 @@ class AuthController extends Controller
 
     /**
      * Déconnexion
+     * 
+     * @OA\Post(
+     *     path="/logout",
+     *     tags={"Authentification"},
+     *     summary="Déconnexion",
+     *     description="Révoque le token d'accès actuel",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(response=200, description="Déconnexion réussie"),
+     *     @OA\Response(response=401, description="Non authentifié")
+     * )
      */
     public function logout(Request $request)
     {
@@ -56,6 +92,16 @@ class AuthController extends Controller
 
     /**
      * Récupérer l'utilisateur courant
+     * 
+     * @OA\Get(
+     *     path="/user",
+     *     tags={"Authentification"},
+     *     summary="Utilisateur courant",
+     *     description="Retourne les informations de l'utilisateur authentifié",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(response=200, description="Informations utilisateur"),
+     *     @OA\Response(response=401, description="Non authentifié")
+     * )
      */
     public function user(Request $request)
     {

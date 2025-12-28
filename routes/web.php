@@ -11,6 +11,12 @@ use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SuiviScolaireController;
+use App\Http\Controllers\LicenceController;
+use App\Http\Controllers\CertificatMedicalController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\SaisonController;
+use App\Http\Controllers\FactureController;
+use App\Http\Controllers\CalendrierController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -171,6 +177,49 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/performances/{performance}/edit', [PerformanceController::class, 'edit'])->name('performances.edit');
     Route::put('/performances/{performance}', [PerformanceController::class, 'update'])->name('performances.update');
     Route::delete('/performances/{performance}', [PerformanceController::class, 'destroy'])->name('performances.destroy');
+
+    // Gestion des licences sportives
+    Route::get('/licences/expirant-bientot', [LicenceController::class, 'expirantBientot'])->name('licences.expirant-bientot');
+    Route::post('/licences/verifier-expirations', [LicenceController::class, 'verifierExpirations'])->name('licences.verifier-expirations');
+    Route::post('/licences/{licence}/renouveler', [LicenceController::class, 'renouveler'])->name('licences.renouveler');
+    Route::resource('licences', LicenceController::class);
+
+    // Gestion des certificats médicaux
+    Route::get('/certificats-medicaux/expirant-bientot', [CertificatMedicalController::class, 'expirantBientot'])->name('certificats-medicaux.expirant-bientot');
+    Route::post('/certificats-medicaux/verifier-expirations', [CertificatMedicalController::class, 'verifierExpirations'])->name('certificats-medicaux.verifier-expirations');
+    Route::resource('certificats-medicaux', CertificatMedicalController::class);
+
+    // Exports PDF/Excel
+    Route::prefix('exports')->name('exports.')->group(function () {
+        Route::get('/athletes/excel', [ExportController::class, 'athletesExcel'])->name('athletes.excel');
+        Route::get('/athletes/pdf', [ExportController::class, 'athletesPdf'])->name('athletes.pdf');
+        Route::get('/athletes/{athlete}/fiche', [ExportController::class, 'ficheAthletePdf'])->name('athletes.fiche');
+        Route::get('/licences/excel', [ExportController::class, 'licencesExcel'])->name('licences.excel');
+        Route::get('/licences/pdf', [ExportController::class, 'licencesPdf'])->name('licences.pdf');
+        Route::get('/paiements/excel', [ExportController::class, 'paiementsExcel'])->name('paiements.excel');
+        Route::get('/paiements/pdf', [ExportController::class, 'paiementsPdf'])->name('paiements.pdf');
+    });
+
+    // Gestion des saisons
+    Route::post('/saisons/{saison}/activer', [SaisonController::class, 'activer'])->name('saisons.activer');
+    Route::post('/saisons/{saison}/archiver', [SaisonController::class, 'archiver'])->name('saisons.archiver');
+    Route::resource('saisons', SaisonController::class);
+
+    // Gestion des factures
+    Route::post('/factures/{facture}/emettre', [FactureController::class, 'emettre'])->name('factures.emettre');
+    Route::post('/factures/{facture}/paiement', [FactureController::class, 'enregistrerPaiement'])->name('factures.paiement');
+    Route::post('/factures/{facture}/annuler', [FactureController::class, 'annuler'])->name('factures.annuler');
+    Route::get('/factures/{facture}/pdf', [FactureController::class, 'pdf'])->name('factures.pdf');
+    Route::resource('factures', FactureController::class);
+
+    // Calendrier global
+    Route::get('/calendrier', [CalendrierController::class, 'index'])->name('calendrier.index');
+    Route::get('/calendrier/events', [CalendrierController::class, 'events'])->name('calendrier.events');
+    Route::get('/calendrier/a-venir', [CalendrierController::class, 'aVenir'])->name('calendrier.a-venir');
+    Route::post('/calendrier/evenements', [CalendrierController::class, 'store'])->name('calendrier.store');
+    Route::get('/calendrier/evenements/{evenement}', [CalendrierController::class, 'show'])->name('calendrier.show');
+    Route::put('/calendrier/evenements/{evenement}', [CalendrierController::class, 'update'])->name('calendrier.update');
+    Route::delete('/calendrier/evenements/{evenement}', [CalendrierController::class, 'destroy'])->name('calendrier.destroy');
 });
 
 require __DIR__.'/auth.php';
