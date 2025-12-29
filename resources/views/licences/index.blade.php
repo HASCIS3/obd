@@ -140,11 +140,15 @@
                                 <span class="font-mono text-sm">{{ $licence->numero_licence }}</span>
                             </x-td>
                             <x-td>
-                                <a href="{{ route('athletes.show', $licence->athlete) }}" class="text-primary-600 hover:underline">
-                                    {{ $licence->athlete->nom_complet }}
-                                </a>
+                                @if($licence->athlete)
+                                    <a href="{{ route('athletes.show', $licence->athlete) }}" class="text-primary-600 hover:underline">
+                                        {{ $licence->athlete->nom_complet }}
+                                    </a>
+                                @else
+                                    <span class="text-gray-400 italic">Athlète supprimé</span>
+                                @endif
                             </x-td>
-                            <x-td>{{ $licence->discipline->nom }}</x-td>
+                            <x-td>{{ $licence->discipline?->nom ?? 'N/A' }}</x-td>
                             <x-td>
                                 <x-badge variant="info">{{ $licence->categorie ?? 'N/A' }}</x-badge>
                             </x-td>
