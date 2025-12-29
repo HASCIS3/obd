@@ -21,6 +21,7 @@ use App\Http\Controllers\StageFormationController;
 use App\Http\Controllers\PortailParentController;
 use App\Http\Controllers\PortailAthleteController;
 use App\Http\Controllers\PointageController;
+use App\Http\Controllers\RencontreController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -146,6 +147,12 @@ Route::middleware(['auth', 'verified', 'coach'])->group(function () {
     Route::get('/pointage/mensuel', [PointageController::class, 'mensuel'])->name('presences.pointage.mensuel');
     Route::get('/pointage/annuel', [PointageController::class, 'annuel'])->name('presences.pointage.annuel');
 
+    // Matchs et rencontres sportives (lecture pour tous)
+    Route::get('/rencontres', [RencontreController::class, 'index'])->name('rencontres.index');
+    Route::get('/rencontres/statistiques', [RencontreController::class, 'statistiques'])->name('rencontres.statistiques');
+    Route::get('/rencontres/calendrier', [RencontreController::class, 'calendrier'])->name('rencontres.calendrier');
+    Route::get('/rencontres/{rencontre}', [RencontreController::class, 'show'])->name('rencontres.show')->where('rencontre', '[0-9]+');
+
     // Performances (lecture et création pour coachs)
     Route::get('/performances', [PerformanceController::class, 'index'])->name('performances.index');
     Route::get('/performances/dashboard', [PerformanceController::class, 'dashboard'])->name('performances.dashboard');
@@ -188,6 +195,15 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/performances/{performance}/edit', [PerformanceController::class, 'edit'])->name('performances.edit');
     Route::put('/performances/{performance}', [PerformanceController::class, 'update'])->name('performances.update');
     Route::delete('/performances/{performance}', [PerformanceController::class, 'destroy'])->name('performances.destroy');
+
+    // Gestion complète des matchs et rencontres (admin uniquement)
+    Route::get('/rencontres/create', [RencontreController::class, 'create'])->name('rencontres.create');
+    Route::post('/rencontres', [RencontreController::class, 'store'])->name('rencontres.store');
+    Route::get('/rencontres/{rencontre}/edit', [RencontreController::class, 'edit'])->name('rencontres.edit');
+    Route::put('/rencontres/{rencontre}', [RencontreController::class, 'update'])->name('rencontres.update');
+    Route::delete('/rencontres/{rencontre}', [RencontreController::class, 'destroy'])->name('rencontres.destroy');
+    Route::get('/rencontres/{rencontre}/participations', [RencontreController::class, 'participations'])->name('rencontres.participations');
+    Route::post('/rencontres/{rencontre}/participations', [RencontreController::class, 'storeParticipations'])->name('rencontres.participations.store');
 
     // Gestion des licences sportives
     Route::get('/licences/expirant-bientot', [LicenceController::class, 'expirantBientot'])->name('licences.expirant-bientot');

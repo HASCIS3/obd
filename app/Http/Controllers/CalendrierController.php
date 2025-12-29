@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Discipline;
 use App\Models\Evenement;
+use App\Models\Rencontre;
 use Illuminate\Http\Request;
 
 class CalendrierController extends Controller
@@ -17,25 +18,72 @@ class CalendrierController extends Controller
 
     public function events(Request $request)
     {
-        $query = Evenement::with('discipline');
+        $events = collect();
+
+        // Événements classiques
+        $queryEvenements = Evenement::with('discipline');
 
         if ($request->filled('start') && $request->filled('end')) {
-            $query->entreDates($request->start, $request->end);
+            $queryEvenements->entreDates($request->start, $request->end);
         }
 
-        if ($request->filled('type')) {
-            $query->deType($request->type);
+        if ($request->filled('type') && $request->type !== 'match') {
+            $queryEvenements->deType($request->type);
         }
 
         if ($request->filled('discipline_id')) {
-            $query->deDiscipline($request->discipline_id);
+            $queryEvenements->deDiscipline($request->discipline_id);
         }
 
-        $evenements = $query->orderBy('date_debut')->get();
+        if (!$request->filled('type') || $request->type !== 'match') {
+            $evenements = $queryEvenements->orderBy('date_debut')->get();
+            $events = $events->merge($evenements->map(fn($e) => $e->toFullCalendarEvent()));
+        }
 
-        return response()->json(
-            $evenements->map(fn($e) => $e->toFullCalendarEvent())
-        );
+        // Rencontres sportives (matchs)
+        if (!$request->filled('type') || $request->type === 'match' || $request->type === 'competition') {
+            $queryRencontres = Rencontre::with('discipline');
+
+            if ($request->filled('start') && $request->filled('end')) {
+                $queryRencontres->whereBetween('date_match', [$request->start, $request->end]);
+            }
+
+            if ($request->filled('discipline_id')) {
+                $queryRencontres->where('discipline_id', $request->discipline_id);
+            }
+
+            $rencontres = $queryRencontres->orderBy('date_match')->get();
+            
+            $events = $events->merge($rencontres->map(function ($r) {
+                $couleur = match($r->resultat) {
+                    'victoire' => '#16a34a', // vert
+                    'defaite' => '#dc2626',  // rouge
+                    'nul' => '#f59e0b',      // orange
+                    default => '#3b82f6',    // bleu (à jouer)
+                };
+                
+                return [
+                    'id' => 'match_' . $r->id,
+                    'title' => 'Match: OBD vs ' . $r->adversaire,
+                    'start' => $r->date_match->format('Y-m-d') . ($r->heure_match ? 'T' . $r->heure_match : ''),
+                    'end' => $r->date_match->format('Y-m-d') . ($r->heure_match ? 'T' . $r->heure_match : ''),
+                    'allDay' => !$r->heure_match,
+                    'backgroundColor' => $couleur,
+                    'borderColor' => $couleur,
+                    'url' => route('rencontres.show', $r),
+                    'extendedProps' => [
+                        'type' => 'match',
+                        'discipline' => $r->discipline?->nom,
+                        'lieu' => $r->lieu,
+                        'resultat' => $r->resultat,
+                        'score' => $r->score_formate,
+                        'type_match' => $r->type_match,
+                    ],
+                ];
+            }));
+        }
+
+        return response()->json($events->values());
     }
 
     public function store(Request $request)
@@ -118,12 +166,20 @@ class CalendrierController extends Controller
 
     public function aVenir()
     {
+        // Événements à venir
         $evenements = Evenement::with('discipline')
             ->aVenir()
             ->orderBy('date_debut')
             ->take(10)
             ->get();
 
-        return view('calendrier.a-venir', compact('evenements'));
+        // Matchs à venir
+        $matchsAVenir = Rencontre::with('discipline')
+            ->where('date_match', '>=', now()->startOfDay())
+            ->orderBy('date_match')
+            ->take(10)
+            ->get();
+
+        return view('calendrier.a-venir', compact('evenements', 'matchsAVenir'));
     }
 }
