@@ -20,6 +20,7 @@ use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\StageFormationController;
 use App\Http\Controllers\PortailParentController;
 use App\Http\Controllers\PortailAthleteController;
+use App\Http\Controllers\PointageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -138,6 +139,12 @@ Route::middleware(['auth', 'verified', 'coach'])->group(function () {
     Route::post('/presences', [PresenceController::class, 'store'])->name('presences.store');
     Route::get('/presences/athlete/{athlete}', [PresenceController::class, 'athleteStats'])->name('presences.athlete');
     Route::get('/presences/rapport-mensuel', [PresenceController::class, 'rapportMensuel'])->name('presences.rapport-mensuel');
+
+    // Système de pointage professionnel (quotidien, hebdomadaire, mensuel, annuel)
+    Route::get('/pointage/quotidien', [PointageController::class, 'quotidien'])->name('presences.pointage.quotidien');
+    Route::get('/pointage/hebdomadaire', [PointageController::class, 'hebdomadaire'])->name('presences.pointage.hebdomadaire');
+    Route::get('/pointage/mensuel', [PointageController::class, 'mensuel'])->name('presences.pointage.mensuel');
+    Route::get('/pointage/annuel', [PointageController::class, 'annuel'])->name('presences.pointage.annuel');
 
     // Performances (lecture et création pour coachs)
     Route::get('/performances', [PerformanceController::class, 'index'])->name('performances.index');

@@ -72,6 +72,7 @@
                     </x-slot>
 
                     @foreach($performances as $performance)
+                        @if($performance->athlete)
                         <tr class="hover:bg-gray-50">
                             <x-td>{{ $performance->date_evaluation->format('d/m/Y') }}</x-td>
                             <x-td>
@@ -79,7 +80,7 @@
                                     {{ $performance->athlete->nom_complet }}
                                 </a>
                             </x-td>
-                            <x-td>{{ $performance->discipline->nom }}</x-td>
+                            <x-td>{{ $performance->discipline->nom ?? '-' }}</x-td>
                             <x-td>{{ $performance->type_evaluation ?: '-' }}</x-td>
                             <x-td>
                                 @if($performance->score)
@@ -116,6 +117,7 @@
                                 </div>
                             </x-td>
                         </tr>
+                        @endif
                     @endforeach
                 </x-table>
 

@@ -112,32 +112,22 @@
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap">
                                                 <input type="hidden" name="presences[{{ $index }}][athlete_id]" value="{{ $athlete->id }}">
-                                                <div class="flex justify-center gap-2">
-                                                    <label class="relative cursor-pointer">
+                                                <div class="flex justify-center gap-3">
+                                                    <label class="flex items-center cursor-pointer">
                                                         <input type="radio" 
                                                                name="presences[{{ $index }}][present]" 
                                                                value="1"
                                                                {{ $isPresent === true || $isPresent === null ? 'checked' : '' }}
-                                                               class="sr-only peer presence-radio">
-                                                        <div class="w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center
-                                                                    peer-checked:border-green-500 peer-checked:bg-green-50 transition-all">
-                                                            <svg class="w-5 h-5 text-gray-400 peer-checked:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                        </div>
+                                                               class="w-5 h-5 text-green-600 border-gray-300 focus:ring-green-500">
+                                                        <span class="ml-2 text-sm text-gray-700">Present</span>
                                                     </label>
-                                                    <label class="relative cursor-pointer">
+                                                    <label class="flex items-center cursor-pointer">
                                                         <input type="radio" 
                                                                name="presences[{{ $index }}][present]" 
                                                                value="0"
                                                                {{ $isPresent === false ? 'checked' : '' }}
-                                                               class="sr-only peer presence-radio">
-                                                        <div class="w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center
-                                                                    peer-checked:border-red-500 peer-checked:bg-red-50 transition-all">
-                                                            <svg class="w-5 h-5 text-gray-400 peer-checked:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                            </svg>
-                                                        </div>
+                                                               class="w-5 h-5 text-red-600 border-gray-300 focus:ring-red-500">
+                                                        <span class="ml-2 text-sm text-gray-700">Absent</span>
                                                     </label>
                                                 </div>
                                             </td>

@@ -28,6 +28,29 @@
 
 @section('pointage-content')
     @if($disciplineId && $athletes->count() > 0)
+        <!-- Boutons de pointage rapide -->
+        <x-card class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <svg class="w-5 h-5 inline mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+                Faire le pointage
+            </h3>
+            <div class="grid grid-cols-7 gap-3">
+                @foreach($joursSemaine as $jour)
+                    <a href="{{ route('presences.pointage.quotidien', ['discipline' => $disciplineId, 'date' => $jour['date']->format('Y-m-d')]) }}" 
+                       class="block p-4 border-2 border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all text-center group">
+                        <div class="text-sm font-semibold text-gray-900 group-hover:text-primary-700">{{ $jour['nom'] }}</div>
+                        <div class="text-lg font-bold text-primary-600 my-1">{{ $jour['date']->format('d') }}</div>
+                        <div class="text-xs text-gray-500">{{ $jour['date']->locale('fr')->isoFormat('MMM') }}</div>
+                        <div class="mt-2 px-2 py-1 bg-primary-600 text-white text-xs rounded group-hover:bg-primary-700">
+                            Pointer →
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </x-card>
+
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Tableau hebdomadaire -->
             <div class="lg:col-span-3">
@@ -53,7 +76,7 @@
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">Athlete</th>
                                     @foreach($joursSemaine as $jour)
                                         <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[80px]">
-                                            <div>{{ $jour['nom'] }}</div>
+                                            <div>{{ $jour['nom_court'] }}</div>
                                             <div class="text-gray-400 font-normal">{{ $jour['date']->format('d/m') }}</div>
                                         </th>
                                     @endforeach
@@ -127,17 +150,32 @@
                         </table>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t flex justify-between items-center">
-                        <p class="text-sm text-gray-500">
-                            Cliquez sur un jour pour effectuer le pointage quotidien
-                        </p>
-                        <div class="flex gap-2">
-                            @foreach($joursSemaine as $jour)
-                                <a href="{{ route('presences.pointage.quotidien', ['date' => $jour['date']->format('Y-m-d'), 'discipline' => $disciplineId]) }}" 
-                                   class="px-2 py-1 text-xs font-medium text-primary-600 hover:text-primary-800 hover:bg-primary-50 rounded">
-                                    {{ $jour['nom_court'] }}
-                                </a>
-                            @endforeach
+                    <div class="mt-4 pt-4 border-t">
+                        <div class="flex items-center justify-center gap-6 text-sm">
+                            <span class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </span>
+                                <span class="text-gray-600">Present</span>
+                            </span>
+                            <span class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </span>
+                                <span class="text-gray-600">Absent</span>
+                            </span>
+                            <span class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                    </svg>
+                                </span>
+                                <span class="text-gray-600">Non pointe</span>
+                            </span>
                         </div>
                     </div>
                 </x-card>
