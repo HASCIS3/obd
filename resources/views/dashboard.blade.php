@@ -372,6 +372,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($dernieresPerformances->take(5) as $perf)
+                                @if($perf->athlete)
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="px-6 py-4">
                                         <a href="{{ route('athletes.show', $perf->athlete) }}" class="text-sm font-medium text-gray-900 hover:text-primary-600">
@@ -425,6 +426,7 @@
                                         @endif
                                     </td>
                                 </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>

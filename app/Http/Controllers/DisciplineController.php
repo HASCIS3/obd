@@ -114,7 +114,7 @@ class DisciplineController extends Controller
             'actif' => 'boolean',
         ]);
 
-        $validated['actif'] = $request->boolean('actif', true);
+        $validated['actif'] = $request->has('actif');
 
         $discipline->update($validated);
 

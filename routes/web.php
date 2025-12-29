@@ -134,6 +134,7 @@ Route::middleware(['auth', 'verified', 'coach'])->group(function () {
     // Présences (gestion complète pour coachs)
     Route::get('/presences', [PresenceController::class, 'index'])->name('presences.index');
     Route::get('/presences/create', [PresenceController::class, 'create'])->name('presences.create');
+    Route::get('/presences/pointage', [PresenceController::class, 'pointageQuotidien'])->name('presences.pointage');
     Route::post('/presences', [PresenceController::class, 'store'])->name('presences.store');
     Route::get('/presences/athlete/{athlete}', [PresenceController::class, 'athleteStats'])->name('presences.athlete');
     Route::get('/presences/rapport-mensuel', [PresenceController::class, 'rapportMensuel'])->name('presences.rapport-mensuel');

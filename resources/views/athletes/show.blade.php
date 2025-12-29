@@ -202,6 +202,86 @@
                 </x-card>
                 @endif
 
+                <!-- Certificat Medical -->
+                <x-card title="Certificat Medical">
+                    @php
+                        $certificat = $athlete->certificatsMedicaux()->latest('date_examen')->first();
+                    @endphp
+                    @if($certificat)
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">Statut</span>
+                                @if($certificat->statut === 'valide')
+                                    <x-badge color="success">Valide</x-badge>
+                                @elseif($certificat->statut === 'expire')
+                                    <x-badge color="danger">Expire</x-badge>
+                                @else
+                                    <x-badge color="warning">En attente</x-badge>
+                                @endif
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">Type</span>
+                                <span class="text-sm text-gray-900">{{ $certificat->type_label }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">Date examen</span>
+                                <span class="text-sm text-gray-900">{{ $certificat->date_examen->format('d/m/Y') }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">Expiration</span>
+                                <span class="text-sm text-gray-900">
+                                    {{ $certificat->date_expiration->format('d/m/Y') }}
+                                    @if($certificat->jours_restants > 0)
+                                        <span class="text-xs text-gray-500">({{ $certificat->jours_restants }}j)</span>
+                                    @endif
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">Medecin</span>
+                                <span class="text-sm text-gray-900">{{ $certificat->medecin }}</span>
+                            </div>
+                            <div class="pt-3 border-t flex gap-2">
+                                <div class="flex items-center">
+                                    @if($certificat->apte_competition)
+                                        <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    @else
+                                        <svg class="w-4 h-4 text-red-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                    <span class="text-xs">Competition</span>
+                                </div>
+                                <div class="flex items-center">
+                                    @if($certificat->apte_entrainement)
+                                        <svg class="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    @else
+                                        <svg class="w-4 h-4 text-red-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                        </svg>
+                                    @endif
+                                    <span class="text-xs">Entrainement</span>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ route('certificats-medicaux.show', $certificat) }}" class="text-sm text-primary-600 hover:text-primary-800">
+                                    Voir le certificat complet &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <x-empty-state title="Aucun certificat" description="Aucun certificat medical enregistre." />
+                        <div class="mt-3">
+                            <x-button href="{{ route('certificats-medicaux.create', ['athlete_id' => $athlete->id]) }}" variant="primary" size="sm" class="w-full">
+                                Ajouter un certificat
+                            </x-button>
+                        </div>
+                    @endif
+                </x-card>
+
                 <!-- Performances -->
                 <x-card title="Performances recentes">
                     @if($athlete->performances->count() > 0)

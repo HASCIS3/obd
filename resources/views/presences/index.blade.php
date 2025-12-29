@@ -8,11 +8,14 @@
                 <p class="mt-1 text-sm text-gray-500">Suivi des presences des athletes</p>
             </div>
             <div class="mt-4 sm:mt-0 flex gap-2">
-                <x-button href="{{ route('presences.create') }}" variant="primary">
+                <x-button href="{{ route('presences.pointage') }}" variant="primary">
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
-                    Saisir presences
+                    Pointage Quotidien
+                </x-button>
+                <x-button href="{{ route('presences.create') }}" variant="secondary">
+                    Saisie rapide
                 </x-button>
                 <x-button href="{{ route('presences.rapport-mensuel') }}" variant="outline">
                     Rapport mensuel
@@ -73,6 +76,7 @@
                     </x-slot>
 
                     @foreach($presences as $presence)
+                        @if($presence->athlete)
                         <tr class="hover:bg-gray-50">
                             <x-td>{{ $presence->date->format('d/m/Y') }}</x-td>
                             <x-td>
@@ -80,7 +84,7 @@
                                     {{ $presence->athlete->nom_complet }}
                                 </a>
                             </x-td>
-                            <x-td>{{ $presence->discipline->nom }}</x-td>
+                            <x-td>{{ $presence->discipline->nom ?? '-' }}</x-td>
                             <x-td>{{ $presence->coach?->user->name ?? '-' }}</x-td>
                             <x-td>
                                 @if($presence->present)
@@ -91,6 +95,7 @@
                             </x-td>
                             <x-td class="max-w-xs truncate">{{ $presence->remarque ?: '-' }}</x-td>
                         </tr>
+                        @endif
                     @endforeach
                 </x-table>
 

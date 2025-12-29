@@ -71,7 +71,8 @@ class AthleteController extends Controller
      */
     public function create(): View
     {
-        $disciplines = Discipline::where('actif', true)->orderBy('nom')->get();
+        // Charger toutes les disciplines pour permettre de sélectionner
+        $disciplines = Discipline::orderBy('nom')->get();
         return view('athletes.create', compact('disciplines'));
     }
 
@@ -157,7 +158,8 @@ class AthleteController extends Controller
      */
     public function edit(Athlete $athlete): View
     {
-        $disciplines = Discipline::where('actif', true)->orderBy('nom')->get();
+        // Charger toutes les disciplines pour permettre de voir/modifier les associations
+        $disciplines = Discipline::orderBy('nom')->get();
         $athlete->load('disciplines');
         
         return view('athletes.edit', compact('athlete', 'disciplines'));

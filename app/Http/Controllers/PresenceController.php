@@ -89,6 +89,89 @@ class PresenceController extends Controller
     }
 
     /**
+     * Affiche l'interface de pointage quotidien professionnel
+     */
+    public function pointageQuotidien(Request $request): View
+    {
+        $disciplines = Discipline::where('actif', true)->orderBy('nom')->get();
+        $date = $request->date ?? now()->format('Y-m-d');
+        $disciplineId = $request->discipline;
+
+        $athletes = collect();
+        $existingPresences = collect();
+        $existingRemarks = collect();
+        $athleteStats = [];
+        $selectedDiscipline = null;
+
+        if ($disciplineId) {
+            $selectedDiscipline = Discipline::find($disciplineId);
+            
+            $athletes = Athlete::whereHas('disciplines', function ($q) use ($disciplineId) {
+                $q->where('disciplines.id', $disciplineId)
+                    ->where('athlete_discipline.actif', true);
+            })->where('actif', true)->orderBy('nom')->get();
+
+            // Presences existantes du jour
+            $todayPresences = Presence::where('discipline_id', $disciplineId)
+                ->whereDate('date', $date)
+                ->get();
+            
+            $existingPresences = $todayPresences->pluck('present', 'athlete_id');
+            $existingRemarks = $todayPresences->pluck('remarque', 'athlete_id');
+
+            // Calculer les stats hebdomadaires et mensuelles pour chaque athlete
+            $startOfWeek = Carbon::parse($date)->startOfWeek();
+            $endOfWeek = Carbon::parse($date)->endOfWeek();
+            $startOfMonth = Carbon::parse($date)->startOfMonth();
+            $endOfMonth = Carbon::parse($date)->endOfMonth();
+
+            foreach ($athletes as $athlete) {
+                // Stats de la semaine
+                $weekPresences = Presence::where('athlete_id', $athlete->id)
+                    ->where('discipline_id', $disciplineId)
+                    ->whereBetween('date', [$startOfWeek, $endOfWeek])
+                    ->get();
+                
+                $weekTotal = $weekPresences->count();
+                $weekPresents = $weekPresences->where('present', true)->count();
+
+                // Stats du mois
+                $monthPresences = Presence::where('athlete_id', $athlete->id)
+                    ->where('discipline_id', $disciplineId)
+                    ->whereBetween('date', [$startOfMonth, $endOfMonth])
+                    ->get();
+                
+                $monthTotal = $monthPresences->count();
+                $monthPresents = $monthPresences->where('present', true)->count();
+
+                $athleteStats[$athlete->id] = [
+                    'week' => [
+                        'total' => $weekTotal,
+                        'presents' => $weekPresents,
+                        'taux' => $weekTotal > 0 ? round(($weekPresents / $weekTotal) * 100) : 0,
+                    ],
+                    'month' => [
+                        'total' => $monthTotal,
+                        'presents' => $monthPresents,
+                        'taux' => $monthTotal > 0 ? round(($monthPresents / $monthTotal) * 100) : 0,
+                    ],
+                ];
+            }
+        }
+
+        return view('presences.pointage-quotidien', compact(
+            'disciplines', 
+            'athletes', 
+            'date', 
+            'disciplineId', 
+            'existingPresences',
+            'existingRemarks',
+            'athleteStats',
+            'selectedDiscipline'
+        ));
+    }
+
+    /**
      * Enregistre les présences (Web ou API)
      */
     public function store(Request $request): RedirectResponse|JsonResponse

@@ -48,7 +48,8 @@ class CoachController extends Controller
      */
     public function create(): View
     {
-        $disciplines = Discipline::where('actif', true)->orderBy('nom')->get();
+        // Charger toutes les disciplines pour permettre de sélectionner
+        $disciplines = Discipline::orderBy('nom')->get();
         return view('coachs.create', compact('disciplines'));
     }
 
@@ -120,7 +121,8 @@ class CoachController extends Controller
      */
     public function edit(Coach $coach): View
     {
-        $disciplines = Discipline::where('actif', true)->orderBy('nom')->get();
+        // Charger toutes les disciplines pour permettre de voir/modifier les associations existantes
+        $disciplines = Discipline::orderBy('nom')->get();
         $coach->load(['user', 'disciplines']);
 
         return view('coachs.edit', compact('coach', 'disciplines'));
@@ -170,7 +172,7 @@ class CoachController extends Controller
             'specialite' => $validated['specialite'] ?? null,
             'photo' => $photoPath,
             'date_embauche' => $validated['date_embauche'],
-            'actif' => $request->boolean('actif', true),
+            'actif' => $request->has('actif'),
         ]);
 
         // Synchroniser les disciplines

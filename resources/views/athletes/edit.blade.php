@@ -81,7 +81,7 @@
                     <x-form-group label="Disciplines" name="disciplines" class="md:col-span-2">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             @foreach($disciplines as $discipline)
-                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer {{ !$discipline->actif ? 'opacity-60 bg-gray-50' : '' }}">
                                     <input 
                                         type="checkbox" 
                                         name="disciplines[]" 
@@ -89,7 +89,12 @@
                                         {{ in_array($discipline->id, old('disciplines', $athlete->disciplines->pluck('id')->toArray())) ? 'checked' : '' }}
                                         class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                                     >
-                                    <span class="ml-2 text-sm text-gray-700">{{ $discipline->nom }}</span>
+                                    <span class="ml-2 text-sm {{ $discipline->actif ? 'text-gray-700' : 'text-gray-400' }}">
+                                        {{ $discipline->nom }}
+                                        @if(!$discipline->actif)
+                                            <span class="text-xs text-red-500">(inactif)</span>
+                                        @endif
+                                    </span>
                                 </label>
                             @endforeach
                         </div>
