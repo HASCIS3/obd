@@ -93,6 +93,74 @@
             </div>
         @endif
 
+        <!-- Activités -->
+        @if(isset($activitesAVenir) && $activitesAVenir->count() > 0)
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Activités & Galeries
+            </h3>
+            <div class="space-y-4 mb-8">
+                @foreach($activitesAVenir as $activite)
+                    <a href="{{ route('activities.show', $activite) }}" class="block">
+                        <x-card class="hover:shadow-md transition-shadow border-l-4 {{ $activite->type === 'galerie' ? 'border-pink-500' : ($activite->type === 'competition' ? 'border-red-500' : ($activite->type === 'tournoi' ? 'border-orange-500' : 'border-purple-500')) }}">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0 w-16 text-center">
+                                    <div class="text-3xl font-bold text-primary-600">{{ $activite->debut->format('d') }}</div>
+                                    <div class="text-sm text-gray-500 uppercase">{{ $activite->debut->translatedFormat('M') }}</div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $activite->type === 'galerie' ? 'bg-pink-100 text-pink-800' : ($activite->type === 'competition' ? 'bg-red-100 text-red-800' : ($activite->type === 'tournoi' ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800')) }}">
+                                            {{ $activite->type_label }}
+                                        </span>
+                                        @if($activite->discipline)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                                {{ $activite->discipline->nom }}
+                                            </span>
+                                        @endif
+                                        @if($activite->debut->isToday())
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 animate-pulse">
+                                                Aujourd'hui
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h3 class="text-lg font-semibold text-gray-900">{{ $activite->titre }}</h3>
+                                    <div class="mt-1 text-sm text-gray-500 space-y-1">
+                                        <p>
+                                            <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {{ $activite->debut->format('H:i') }}
+                                            @if($activite->fin) - {{ $activite->fin->format('H:i') }}@endif
+                                        </p>
+                                        @if($activite->lieu)
+                                            <p>
+                                                <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                {{ $activite->lieu }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                    @if($activite->description)
+                                        <p class="mt-2 text-sm text-gray-600">{{ Str::limit($activite->description, 100) }}</p>
+                                    @endif
+                                </div>
+                                @if($activite->image_url)
+                                    <div class="flex-shrink-0">
+                                        <img src="{{ $activite->image_url }}" alt="{{ $activite->titre }}" class="w-20 h-20 object-cover rounded-lg">
+                                    </div>
+                                @endif
+                            </div>
+                        </x-card>
+                    </a>
+                @endforeach
+            </div>
+        @endif
+
         <!-- Événements -->
         @if($evenements->count() > 0)
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -170,20 +238,20 @@
             </div>
         @endif
 
-        @if($evenements->count() === 0 && (!isset($matchsAVenir) || $matchsAVenir->count() === 0))
+        @if($evenements->count() === 0 && (!isset($matchsAVenir) || $matchsAVenir->count() === 0) && (!isset($activitesAVenir) || $activitesAVenir->count() === 0))
             <x-card>
                 <div class="text-center py-12">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun événement à venir</h3>
-                    <p class="mt-1 text-sm text-gray-500">Créez un nouvel événement depuis le calendrier ou planifiez un match.</p>
+                    <p class="mt-1 text-sm text-gray-500">Créez un nouvel événement depuis le calendrier, planifiez un match ou ajoutez une activité.</p>
                     <div class="mt-6 flex justify-center gap-4">
                         <x-button href="{{ route('calendrier.index') }}" variant="primary">
                             Voir le calendrier
                         </x-button>
-                        <x-button href="{{ route('rencontres.index') }}" variant="secondary">
-                            Voir les matchs
+                        <x-button href="{{ route('activities.index') }}" variant="secondary">
+                            Voir les activités
                         </x-button>
                     </div>
                 </div>

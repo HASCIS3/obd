@@ -5,7 +5,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">Certificat Médical</h2>
-                <p class="mt-1 text-sm text-gray-500">{{ $certificat->athlete->nom_complet }}</p>
+                <p class="mt-1 text-sm text-gray-500">{{ $certificat->athlete?->nom_complet ?? 'Athlète supprimé' }}</p>
             </div>
             <div class="flex gap-2">
                 <x-button href="{{ route('certificats-medicaux.edit', $certificat) }}" variant="secondary">

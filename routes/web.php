@@ -22,6 +22,7 @@ use App\Http\Controllers\PortailParentController;
 use App\Http\Controllers\PortailAthleteController;
 use App\Http\Controllers\PointageController;
 use App\Http\Controllers\RencontreController;
+use App\Http\Controllers\CombatTaekwondoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -204,6 +205,15 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::delete('/rencontres/{rencontre}', [RencontreController::class, 'destroy'])->name('rencontres.destroy');
     Route::get('/rencontres/{rencontre}/participations', [RencontreController::class, 'participations'])->name('rencontres.participations');
     Route::post('/rencontres/{rencontre}/participations', [RencontreController::class, 'storeParticipations'])->name('rencontres.participations.store');
+
+    // Combats Taekwondo (sports individuels)
+    Route::get('/rencontres/{rencontre}/combats', [CombatTaekwondoController::class, 'index'])->name('combats-taekwondo.index');
+    Route::get('/rencontres/{rencontre}/combats/create', [CombatTaekwondoController::class, 'create'])->name('combats-taekwondo.create');
+    Route::post('/rencontres/{rencontre}/combats', [CombatTaekwondoController::class, 'store'])->name('combats-taekwondo.store');
+    Route::get('/rencontres/{rencontre}/combats/{combat}/saisie', [CombatTaekwondoController::class, 'saisie'])->name('combats-taekwondo.saisie');
+    Route::put('/rencontres/{rencontre}/combats/{combat}/scores', [CombatTaekwondoController::class, 'updateScores'])->name('combats-taekwondo.update-scores');
+    Route::put('/rencontres/{rencontre}/combats/{combat}/terminer', [CombatTaekwondoController::class, 'terminer'])->name('combats-taekwondo.terminer');
+    Route::delete('/rencontres/{rencontre}/combats/{combat}', [CombatTaekwondoController::class, 'destroy'])->name('combats-taekwondo.destroy');
 
     // Gestion des licences sportives
     Route::get('/licences/expirant-bientot', [LicenceController::class, 'expirantBientot'])->name('licences.expirant-bientot');

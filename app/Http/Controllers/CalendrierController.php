@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Discipline;
 use App\Models\Evenement;
 use App\Models\Rencontre;
@@ -82,6 +83,65 @@ class CalendrierController extends Controller
                 ];
             }));
         }
+
+        // Activités (compétitions, tournois, galeries, événements)
+        $queryActivities = Activity::with('discipline')->where('publie', true);
+
+        if ($request->filled('start') && $request->filled('end')) {
+            $queryActivities->where(function ($q) use ($request) {
+                $q->whereBetween('debut', [$request->start, $request->end])
+                  ->orWhereBetween('fin', [$request->start, $request->end]);
+            });
+        }
+
+        if ($request->filled('discipline_id')) {
+            $queryActivities->where('discipline_id', $request->discipline_id);
+        }
+
+        // Filtrer par type si spécifié
+        if ($request->filled('type')) {
+            $activityTypes = match($request->type) {
+                'competition' => [Activity::TYPE_COMPETITION, Activity::TYPE_TOURNOI],
+                'entrainement' => [Activity::TYPE_ENTRAINEMENT],
+                'galerie' => [Activity::TYPE_GALERIE],
+                default => [],
+            };
+            if (!empty($activityTypes)) {
+                $queryActivities->whereIn('type', $activityTypes);
+            }
+        }
+
+        $activities = $queryActivities->orderBy('debut')->get();
+
+        $events = $events->merge($activities->map(function ($a) {
+            $couleur = match($a->type) {
+                Activity::TYPE_COMPETITION => '#dc2626', // rouge
+                Activity::TYPE_TOURNOI => '#f59e0b',     // orange
+                Activity::TYPE_MATCH => '#3b82f6',       // bleu
+                Activity::TYPE_ENTRAINEMENT => '#06b6d4', // cyan
+                Activity::TYPE_EVENEMENT => '#8b5cf6',   // violet
+                Activity::TYPE_GALERIE => '#ec4899',     // rose
+                default => '#6b7280',                    // gris
+            };
+
+            return [
+                'id' => 'activity_' . $a->id,
+                'title' => $a->titre,
+                'start' => $a->debut->format('Y-m-d\TH:i:s'),
+                'end' => $a->fin ? $a->fin->format('Y-m-d\TH:i:s') : $a->debut->format('Y-m-d\TH:i:s'),
+                'allDay' => false,
+                'backgroundColor' => $couleur,
+                'borderColor' => $couleur,
+                'url' => route('activities.show', $a),
+                'extendedProps' => [
+                    'type' => $a->type,
+                    'type_label' => $a->type_label,
+                    'discipline' => $a->discipline?->nom,
+                    'lieu' => $a->lieu,
+                    'description' => $a->description,
+                ],
+            ];
+        }));
 
         return response()->json($events->values());
     }
@@ -180,6 +240,14 @@ class CalendrierController extends Controller
             ->take(10)
             ->get();
 
-        return view('calendrier.a-venir', compact('evenements', 'matchsAVenir'));
+        // Activités à venir
+        $activitesAVenir = Activity::with('discipline')
+            ->where('publie', true)
+            ->where('debut', '>=', now()->startOfDay())
+            ->orderBy('debut')
+            ->take(10)
+            ->get();
+
+        return view('calendrier.a-venir', compact('evenements', 'matchsAVenir', 'activitesAVenir'));
     }
 }

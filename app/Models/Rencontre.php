@@ -93,6 +93,23 @@ class Rencontre extends Model
     }
 
     /**
+     * Combats Taekwondo
+     */
+    public function combatsTaekwondo(): HasMany
+    {
+        return $this->hasMany(CombatTaekwondo::class, 'rencontre_id');
+    }
+
+    /**
+     * Vérifie si c'est un sport individuel (Taekwondo, etc.)
+     */
+    public function isSportIndividuel(): bool
+    {
+        $sportsIndividuels = ['taekwondo', 'judo', 'karate', 'boxe', 'lutte', 'athletisme'];
+        return in_array(strtolower($this->discipline?->nom ?? ''), $sportsIndividuels);
+    }
+
+    /**
      * Score formaté
      */
     public function getScoreFormateAttribute(): string

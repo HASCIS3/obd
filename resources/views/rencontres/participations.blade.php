@@ -101,7 +101,7 @@
                                             <input type="number" 
                                                    name="participations[{{ $index }}][minutes_jouees]" 
                                                    value="{{ $participation?->minutes_jouees }}"
-                                                   class="participation-field w-full text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                                                   class="participation-field w-16 text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                                                    min="0" max="120"
                                                    disabled>
                                         </td>
@@ -109,7 +109,7 @@
                                             <input type="number" 
                                                    name="participations[{{ $index }}][points_marques]" 
                                                    value="{{ $participation?->points_marques }}"
-                                                   class="participation-field w-full text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                                                   class="participation-field w-16 text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                                                    min="0"
                                                    disabled>
                                         </td>
@@ -117,7 +117,7 @@
                                             <input type="number" 
                                                    name="participations[{{ $index }}][passes_decisives]" 
                                                    value="{{ $participation?->passes_decisives }}"
-                                                   class="participation-field w-full text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                                                   class="participation-field w-16 text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                                                    min="0"
                                                    disabled>
                                         </td>
@@ -125,7 +125,7 @@
                                             <input type="number" 
                                                    name="participations[{{ $index }}][rebonds]" 
                                                    value="{{ $participation?->rebonds }}"
-                                                   class="participation-field w-full text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                                                   class="participation-field w-16 text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                                                    min="0"
                                                    disabled>
                                         </td>
@@ -133,7 +133,7 @@
                                             <input type="number" 
                                                    name="participations[{{ $index }}][fautes]" 
                                                    value="{{ $participation?->fautes }}"
-                                                   class="participation-field w-full text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                                                   class="participation-field w-16 text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                                                    min="0" max="5"
                                                    disabled>
                                         </td>
@@ -141,7 +141,7 @@
                                             <input type="number" 
                                                    name="participations[{{ $index }}][note_performance]" 
                                                    value="{{ $participation?->note_performance }}"
-                                                   class="participation-field w-full text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                                                   class="participation-field w-16 text-center text-sm border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                                                    min="0" max="10" step="0.5"
                                                    disabled>
                                         </td>

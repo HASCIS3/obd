@@ -113,11 +113,15 @@
                     @foreach($certificats as $certificat)
                         <tr class="hover:bg-gray-50">
                             <x-td>
-                                <a href="{{ route('athletes.show', $certificat->athlete) }}" class="text-primary-600 hover:underline">
-                                    {{ $certificat->athlete->nom_complet }}
-                                </a>
+                                @if($certificat->athlete)
+                                    <a href="{{ route('athletes.show', $certificat->athlete) }}" class="text-primary-600 hover:underline">
+                                        {{ $certificat->athlete->nom_complet }}
+                                    </a>
+                                @else
+                                    <span class="text-gray-400 italic">Athlète supprimé</span>
+                                @endif
                             </x-td>
-                            <x-td>{{ $certificat->type_label }}</x-td>
+                            <x-td>{{ $certificat->type_label ?? 'N/A' }}</x-td>
                             <x-td>{{ $certificat->medecin }}</x-td>
                             <x-td>
                                 <div class="text-sm">
