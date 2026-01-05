@@ -1,327 +1,356 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight flex items-center gap-2">
-                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    Combat Taekwondo (Kyorugi)
+                <h2 class="font-bold text-2xl text-gray-800 leading-tight">
+                    🥋 Feuille de Combat - Taekwondo
                 </h2>
                 <p class="text-sm text-gray-600 mt-1">
                     {{ $rencontre->adversaire }} 
-                    @if($combat->categorie_poids) • {{ $combat->categorie_poids }} @endif
+                    @if($combat->categorie_poids) • <span class="font-semibold">{{ $combat->categorie_poids }}</span> @endif
                     @if($combat->categorie_age) • {{ ucfirst($combat->categorie_age) }} @endif
                 </p>
             </div>
-            <div class="flex gap-2">
-                <x-button href="{{ route('combats-taekwondo.index', $rencontre) }}" variant="secondary">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Retour
-                </x-button>
-            </div>
+            <x-button href="{{ route('combats-taekwondo.index', $rencontre) }}" variant="secondary">
+                ← Retour aux combats
+            </x-button>
         </div>
     </x-slot>
 
-    <div class="py-4" x-data="combatTaekwondo()">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-6 min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900" x-data="combatTaekwondo()">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            <!-- En-tête avec statut et chronomètre -->
-            <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl shadow-xl p-6 mb-6">
-                <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
-                    <!-- Statut -->
-                    <div class="flex items-center gap-4">
+            <!-- SCORE BOARD PRINCIPAL -->
+            <div class="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden mb-8">
+                <!-- Barre supérieure avec chrono -->
+                <div class="bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-3">
                         <select x-model="statut" @change="updateStatut()" 
-                            class="bg-gray-700 text-white border-gray-600 rounded-lg px-4 py-2 font-semibold focus:ring-2 focus:ring-yellow-500">
+                            class="bg-gray-700 text-white border-0 rounded-lg px-4 py-2 text-sm font-semibold focus:ring-2 focus:ring-yellow-500">
                             <option value="a_jouer">⏳ À jouer</option>
                             <option value="en_cours">🔴 En cours</option>
                             <option value="termine">✅ Terminé</option>
                         </select>
-                        <span class="text-white text-sm">Round <span x-text="roundActuel" class="font-bold text-yellow-400"></span>/3</span>
                     </div>
+                    
+                    <!-- Chronomètre central -->
+                    <div class="flex flex-col items-center">
+                        <div class="text-6xl font-mono font-black text-yellow-400 tracking-wider" x-text="formatTime(chrono)"></div>
+                        <div class="text-gray-400 text-sm mt-1">Round <span x-text="roundActuel === 'golden' ? 'Golden' : roundActuel" class="text-yellow-400 font-bold"></span></div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button @click="startChrono()" x-show="!chronoRunning" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-bold transition shadow-lg">
+                            ▶ GO
+                        </button>
+                        <button @click="pauseChrono()" x-show="chronoRunning" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-gray-900 rounded-lg text-sm font-bold transition shadow-lg">
+                            ⏸ STOP
+                        </button>
+                        <button @click="resetChrono()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm font-bold transition">
+                            ↺
+                        </button>
+                    </div>
+                </div>
 
-                    <!-- Chronomètre -->
-                    <div class="text-center">
-                        <div class="text-5xl font-mono font-bold text-white" x-text="formatTime(chrono)"></div>
-                        <div class="flex gap-2 mt-2">
-                            <button @click="startChrono()" x-show="!chronoRunning" class="px-4 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition">
-                                ▶ Démarrer
-                            </button>
-                            <button @click="pauseChrono()" x-show="chronoRunning" class="px-4 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-medium transition">
-                                ⏸ Pause
-                            </button>
-                            <button @click="resetChrono()" class="px-4 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition">
-                                ↺ Reset
-                            </button>
-                            <button @click="nextRound()" class="px-4 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition">
-                                Round suivant →
-                            </button>
+                <!-- Zone des scores -->
+                <div class="grid grid-cols-3 gap-0">
+                    <!-- ROUGE -->
+                    <div class="p-6 text-center border-4 border-red-500" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">
+                        <div class="text-xs uppercase tracking-widest mb-2 font-bold" style="color: #fca5a5;">🔴 HONG (Rouge)</div>
+                        <div class="text-8xl font-black drop-shadow-lg" style="color: #ffffff;" x-text="scoreRouge"></div>
+                        <div class="mt-4 rounded-lg p-3" style="background: rgba(127, 29, 29, 0.7);">
+                            <div class="font-bold text-lg uppercase tracking-wide" style="color: #ffffff;">{{ $combat->nom_rouge ?? 'Rouge' }}</div>
+                            <div class="text-sm font-medium" style="color: #fca5a5;">{{ $combat->club_rouge ?? 'OBD' }}</div>
                         </div>
                     </div>
 
-                    <!-- Scores totaux -->
-                    <div class="flex items-center gap-6">
-                        <div class="text-center">
-                            <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
-                                <span class="text-4xl font-bold text-white" x-text="scoreRouge"></span>
-                            </div>
-                            <p class="text-white text-sm mt-1 font-medium">Rouge</p>
+                    <!-- VS Central -->
+                    <div class="flex flex-col items-center justify-center p-4" style="background: #111827;">
+                        <div class="text-3xl font-black mb-4" style="color: #6b7280;">VS</div>
+                        <div class="flex gap-2 mb-4">
+                            <template x-for="r in ['1', '2', '3']" :key="r">
+                                <button @click="roundActuel = r" 
+                                    :class="roundActuel === r ? 'ring-2 ring-yellow-300' : ''"
+                                    :style="roundActuel === r ? 'background: #eab308; color: #111827;' : 'background: #374151; color: #9ca3af;'"
+                                    class="w-10 h-10 rounded-full font-bold text-lg transition hover:opacity-80">
+                                    <span x-text="r"></span>
+                                </button>
+                            </template>
+                            <button @click="roundActuel = 'golden'" 
+                                :class="roundActuel === 'golden' ? 'ring-2 ring-yellow-300' : ''"
+                                :style="roundActuel === 'golden' ? 'background: #eab308; color: #111827;' : 'background: #374151; color: #9ca3af;'"
+                                class="w-10 h-10 rounded-full font-bold text-sm transition hover:opacity-80">
+                                G
+                            </button>
                         </div>
-                        <div class="text-3xl text-gray-400 font-bold">VS</div>
-                        <div class="text-center">
-                            <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                                <span class="text-4xl font-bold text-white" x-text="scoreBleu"></span>
-                            </div>
-                            <p class="text-white text-sm mt-1 font-medium">Bleu</p>
+                        <button @click="nextRound()" class="px-4 py-2 rounded-lg text-xs font-bold transition hover:opacity-80" style="background: #374151; color: #ffffff;">
+                            Round suivant →
+                        </button>
+                    </div>
+
+                    <!-- BLEU -->
+                    <div class="p-6 text-center border-4 border-blue-500" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);">
+                        <div class="text-xs uppercase tracking-widest mb-2 font-bold" style="color: #93c5fd;">🔵 CHUNG (Bleu)</div>
+                        <div class="text-8xl font-black drop-shadow-lg" style="color: #ffffff;" x-text="scoreBleu"></div>
+                        <div class="mt-4 rounded-lg p-3" style="background: rgba(30, 58, 138, 0.7);">
+                            <div class="font-bold text-lg uppercase tracking-wide" style="color: #ffffff;">{{ $combat->nom_bleu ?? 'Bleu' }}</div>
+                            <div class="text-sm font-medium" style="color: #93c5fd;">{{ $combat->club_bleu ?? 'Adversaire' }}</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Alerte victoire automatique -->
-                <div x-show="Math.abs(scoreRouge - scoreBleu) >= 20" 
-                     class="mt-4 bg-yellow-500 text-yellow-900 px-4 py-2 rounded-lg text-center font-bold animate-pulse">
-                    ⚠️ ÉCART DE 20 POINTS - VICTOIRE AUTOMATIQUE !
+                <div x-show="Math.abs(scoreRouge - scoreBleu) >= 20" x-cloak
+                     class="bg-yellow-500 text-gray-900 px-6 py-3 text-center font-black text-lg animate-pulse">
+                    ⚠️ ÉCART DE 20 POINTS - VICTOIRE AUTOMATIQUE ! ⚠️
                 </div>
             </div>
 
-            <!-- Combattants -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <!-- Combattant Rouge -->
-                <div class="bg-gradient-to-br from-red-500 to-red-700 rounded-xl shadow-xl p-6 text-white">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                            <span class="text-3xl">🔴</span>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold">{{ $combat->nom_rouge_complet }}</h3>
-                            @if($combat->club_rouge)
-                                <p class="text-red-200">{{ $combat->club_rouge }}</p>
-                            @endif
-                        </div>
-                    </div>
+            <!-- TABLE DE SCORING -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+                <!-- En-tête de la table -->
+                <div class="bg-gray-800 text-white px-6 py-4">
+                    <h3 class="text-lg font-bold">📊 Tableau de Score - Round <span x-text="roundActuel === 'golden' ? 'Golden' : roundActuel" class="text-yellow-400"></span></h3>
                 </div>
-
-                <!-- Combattant Bleu -->
-                <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl shadow-xl p-6 text-white">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                            <span class="text-3xl">🔵</span>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold">{{ $combat->nom_bleu_complet }}</h3>
-                            @if($combat->club_bleu)
-                                <p class="text-blue-200">{{ $combat->club_bleu }}</p>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sélection du round -->
-            <div class="flex justify-center gap-2 mb-6">
-                <template x-for="r in [1, 2, 3, 'golden']" :key="r">
-                    <button @click="roundActuel = r" 
-                        :class="roundActuel === r ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
-                        class="px-6 py-2 rounded-lg font-semibold shadow transition">
-                        <span x-text="r === 'golden' ? 'Golden Round' : 'Round ' + r"></span>
-                    </button>
-                </template>
-            </div>
-
-            <!-- Table de notation -->
-            <x-card class="overflow-hidden">
+                
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Action</th>
-                                <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Points</th>
-                                <th class="px-4 py-3 text-center text-sm font-semibold text-red-600 bg-red-50">🔴 Rouge</th>
-                                <th class="px-4 py-3 text-center text-sm font-semibold text-blue-600 bg-blue-50">🔵 Bleu</th>
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Technique</th>
+                                <th class="px-4 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider w-20">Pts</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold text-white uppercase tracking-wider bg-red-600 w-40">🔴 ROUGE</th>
+                                <th class="px-6 py-4 text-center text-sm font-bold text-white uppercase tracking-wider bg-blue-600 w-40">🔵 BLEU</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody class="divide-y divide-gray-100">
                             <!-- Coup de poing au tronc -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg">👊</span>
-                                        Coup de poing au tronc
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">👊</span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Poing tronc</div>
+                                            <div class="text-xs text-gray-500">Jirugi</div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">1 pt</span>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 text-gray-800 font-bold">1</span>
                                 </td>
-                                <td class="px-4 py-3 bg-red-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('rouge', 'poing_tronc')" class="w-8 h-8 bg-red-200 hover:bg-red-300 rounded-full text-red-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].rouge.poing_tronc"></span>
-                                        <button @click="increment('rouge', 'poing_tronc')" class="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-red-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('rouge', 'poing_tronc')" class="w-10 h-10 bg-red-200 hover:bg-red-300 rounded-lg text-red-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-red-700" x-text="rounds[roundActuel]?.rouge?.poing_tronc || 0"></span>
+                                        <button @click="increment('rouge', 'poing_tronc')" class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 bg-blue-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('bleu', 'poing_tronc')" class="w-8 h-8 bg-blue-200 hover:bg-blue-300 rounded-full text-blue-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].bleu.poing_tronc"></span>
-                                        <button @click="increment('bleu', 'poing_tronc')" class="w-8 h-8 bg-blue-500 hover:bg-blue-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-blue-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('bleu', 'poing_tronc')" class="w-10 h-10 bg-blue-200 hover:bg-blue-300 rounded-lg text-blue-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-blue-700" x-text="rounds[roundActuel]?.bleu?.poing_tronc || 0"></span>
+                                        <button @click="increment('bleu', 'poing_tronc')" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
                             </tr>
 
                             <!-- Coup de pied au tronc -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg">🦵</span>
-                                        Coup de pied au tronc
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">🦵</span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Pied tronc</div>
+                                            <div class="text-xs text-gray-500">Momtong Chagi</div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">2 pts</span>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-200 text-green-800 font-bold">2</span>
                                 </td>
-                                <td class="px-4 py-3 bg-red-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('rouge', 'pied_tronc')" class="w-8 h-8 bg-red-200 hover:bg-red-300 rounded-full text-red-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].rouge.pied_tronc"></span>
-                                        <button @click="increment('rouge', 'pied_tronc')" class="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-red-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('rouge', 'pied_tronc')" class="w-10 h-10 bg-red-200 hover:bg-red-300 rounded-lg text-red-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-red-700" x-text="rounds[roundActuel]?.rouge?.pied_tronc || 0"></span>
+                                        <button @click="increment('rouge', 'pied_tronc')" class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 bg-blue-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('bleu', 'pied_tronc')" class="w-8 h-8 bg-blue-200 hover:bg-blue-300 rounded-full text-blue-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].bleu.pied_tronc"></span>
-                                        <button @click="increment('bleu', 'pied_tronc')" class="w-8 h-8 bg-blue-500 hover:bg-blue-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-blue-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('bleu', 'pied_tronc')" class="w-10 h-10 bg-blue-200 hover:bg-blue-300 rounded-lg text-blue-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-blue-700" x-text="rounds[roundActuel]?.bleu?.pied_tronc || 0"></span>
+                                        <button @click="increment('bleu', 'pied_tronc')" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
                             </tr>
 
                             <!-- Coup de pied rotatif au tronc -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg">🌀</span>
-                                        Coup de pied rotatif au tronc
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">🌀</span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Pied rotatif tronc</div>
+                                            <div class="text-xs text-gray-500">Dwi Chagi / Dollyeo Chagi</div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">4 pts</span>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-200 text-purple-800 font-bold">4</span>
                                 </td>
-                                <td class="px-4 py-3 bg-red-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('rouge', 'pied_rotatif_tronc')" class="w-8 h-8 bg-red-200 hover:bg-red-300 rounded-full text-red-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].rouge.pied_rotatif_tronc"></span>
-                                        <button @click="increment('rouge', 'pied_rotatif_tronc')" class="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-red-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('rouge', 'pied_rotatif_tronc')" class="w-10 h-10 bg-red-200 hover:bg-red-300 rounded-lg text-red-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-red-700" x-text="rounds[roundActuel]?.rouge?.pied_rotatif_tronc || 0"></span>
+                                        <button @click="increment('rouge', 'pied_rotatif_tronc')" class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 bg-blue-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('bleu', 'pied_rotatif_tronc')" class="w-8 h-8 bg-blue-200 hover:bg-blue-300 rounded-full text-blue-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].bleu.pied_rotatif_tronc"></span>
-                                        <button @click="increment('bleu', 'pied_rotatif_tronc')" class="w-8 h-8 bg-blue-500 hover:bg-blue-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-blue-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('bleu', 'pied_rotatif_tronc')" class="w-10 h-10 bg-blue-200 hover:bg-blue-300 rounded-lg text-blue-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-blue-700" x-text="rounds[roundActuel]?.bleu?.pied_rotatif_tronc || 0"></span>
+                                        <button @click="increment('bleu', 'pied_rotatif_tronc')" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
                             </tr>
 
                             <!-- Coup de pied à la tête -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg">🎯</span>
-                                        Coup de pied à la tête
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">🎯</span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Pied tête</div>
+                                            <div class="text-xs text-gray-500">Olgul Chagi</div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">3 pts</span>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-200 text-orange-800 font-bold">3</span>
                                 </td>
-                                <td class="px-4 py-3 bg-red-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('rouge', 'pied_tete')" class="w-8 h-8 bg-red-200 hover:bg-red-300 rounded-full text-red-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].rouge.pied_tete"></span>
-                                        <button @click="increment('rouge', 'pied_tete')" class="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-red-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('rouge', 'pied_tete')" class="w-10 h-10 bg-red-200 hover:bg-red-300 rounded-lg text-red-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-red-700" x-text="rounds[roundActuel]?.rouge?.pied_tete || 0"></span>
+                                        <button @click="increment('rouge', 'pied_tete')" class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 bg-blue-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('bleu', 'pied_tete')" class="w-8 h-8 bg-blue-200 hover:bg-blue-300 rounded-full text-blue-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].bleu.pied_tete"></span>
-                                        <button @click="increment('bleu', 'pied_tete')" class="w-8 h-8 bg-blue-500 hover:bg-blue-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-blue-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('bleu', 'pied_tete')" class="w-10 h-10 bg-blue-200 hover:bg-blue-300 rounded-lg text-blue-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-blue-700" x-text="rounds[roundActuel]?.bleu?.pied_tete || 0"></span>
+                                        <button @click="increment('bleu', 'pied_tete')" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
                             </tr>
 
                             <!-- Coup de pied rotatif à la tête -->
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg">💫</span>
-                                        Coup de pied rotatif à la tête
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">💫</span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Pied rotatif tête</div>
+                                            <div class="text-xs text-gray-500">Dwi Huryeo Chagi</div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">5 pts</span>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-300 text-yellow-800 font-bold">5</span>
                                 </td>
-                                <td class="px-4 py-3 bg-red-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('rouge', 'pied_rotatif_tete')" class="w-8 h-8 bg-red-200 hover:bg-red-300 rounded-full text-red-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].rouge.pied_rotatif_tete"></span>
-                                        <button @click="increment('rouge', 'pied_rotatif_tete')" class="w-8 h-8 bg-red-500 hover:bg-red-600 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-red-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('rouge', 'pied_rotatif_tete')" class="w-10 h-10 bg-red-200 hover:bg-red-300 rounded-lg text-red-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-red-700" x-text="rounds[roundActuel]?.rouge?.pied_rotatif_tete || 0"></span>
+                                        <button @click="increment('rouge', 'pied_rotatif_tete')" class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 bg-blue-50">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('bleu', 'pied_rotatif_tete')" class="w-8 h-8 bg-blue-200 hover:bg-blue-300 rounded-full text-blue-700 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg" x-text="rounds[roundActuel].bleu.pied_rotatif_tete"></span>
-                                        <button @click="increment('bleu', 'pied_rotatif_tete')" class="w-8 h-8 bg-blue-500 hover:bg-blue-600 rounded-full text-white font-bold transition">+</button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- Gam-jeom (Pénalités) -->
-                            <tr class="bg-yellow-50 hover:bg-yellow-100">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-lg">⚠️</span>
-                                        Gam-jeom (Pénalité)
-                                        <span class="text-xs text-gray-500">(+1 pt adversaire)</span>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">-1</span>
-                                </td>
-                                <td class="px-4 py-3 bg-red-100">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('rouge', 'gamjeom')" class="w-8 h-8 bg-red-300 hover:bg-red-400 rounded-full text-red-800 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg text-red-700" x-text="rounds[roundActuel].rouge.gamjeom"></span>
-                                        <button @click="increment('rouge', 'gamjeom')" class="w-8 h-8 bg-red-600 hover:bg-red-700 rounded-full text-white font-bold transition">+</button>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 bg-blue-100">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <button @click="decrement('bleu', 'gamjeom')" class="w-8 h-8 bg-blue-300 hover:bg-blue-400 rounded-full text-blue-800 font-bold transition">−</button>
-                                        <span class="w-10 text-center font-bold text-lg text-blue-700" x-text="rounds[roundActuel].bleu.gamjeom"></span>
-                                        <button @click="increment('bleu', 'gamjeom')" class="w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded-full text-white font-bold transition">+</button>
+                                <td class="px-6 py-4 bg-blue-50">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('bleu', 'pied_rotatif_tete')" class="w-10 h-10 bg-blue-200 hover:bg-blue-300 rounded-lg text-blue-700 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-blue-700" x-text="rounds[roundActuel]?.bleu?.pied_rotatif_tete || 0"></span>
+                                        <button @click="increment('bleu', 'pied_rotatif_tete')" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-bold text-xl transition shadow">+</button>
                                     </div>
                                 </td>
                             </tr>
 
-                            <!-- Score du round -->
-                            <tr class="bg-gray-200 font-bold">
-                                <td class="px-4 py-3 text-sm text-gray-900" colspan="2">
-                                    Score du Round <span x-text="roundActuel === 'golden' ? 'Golden' : roundActuel"></span>
+                            <!-- Kyong-go (Avertissement) -->
+                            <tr class="bg-yellow-100 hover:bg-yellow-200 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">🟡</span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Kyong-go</div>
+                                            <div class="text-xs text-yellow-700 font-medium">Avertissement (2 = 1 Gam-jeom)</div>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-3 text-center bg-red-200">
-                                    <span class="text-2xl text-red-700" x-text="getScoreRound('rouge')"></span>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500 text-white font-bold text-xs">½</span>
                                 </td>
-                                <td class="px-4 py-3 text-center bg-blue-200">
-                                    <span class="text-2xl text-blue-700" x-text="getScoreRound('bleu')"></span>
+                                <td class="px-6 py-4 bg-red-100">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('rouge', 'kyonggo')" class="w-10 h-10 bg-red-300 hover:bg-red-400 rounded-lg text-red-800 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-red-800" x-text="rounds[roundActuel]?.rouge?.kyonggo || 0"></span>
+                                        <button @click="increment('rouge', 'kyonggo')" class="w-10 h-10 bg-red-700 hover:bg-red-600 rounded-lg text-white font-bold text-xl transition shadow">+</button>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 bg-blue-100">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('bleu', 'kyonggo')" class="w-10 h-10 bg-blue-300 hover:bg-blue-400 rounded-lg text-blue-800 font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-blue-800" x-text="rounds[roundActuel]?.bleu?.kyonggo || 0"></span>
+                                        <button @click="increment('bleu', 'kyonggo')" class="w-10 h-10 bg-blue-700 hover:bg-blue-600 rounded-lg text-white font-bold text-xl transition shadow">+</button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Gam-jeom (Pénalité directe) -->
+                            <tr class="bg-red-200 hover:bg-red-300 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-2xl">🔴</span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Gam-jeom</div>
+                                            <div class="text-xs text-red-700 font-medium">Pénalité directe (+1 pt adversaire)</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-600 text-white font-bold">-1</span>
+                                </td>
+                                <td class="px-6 py-4 bg-red-200">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('rouge', 'gamjeom')" class="w-10 h-10 bg-red-400 hover:bg-red-500 rounded-lg text-white font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-red-900" x-text="rounds[roundActuel]?.rouge?.gamjeom || 0"></span>
+                                        <button @click="increment('rouge', 'gamjeom')" class="w-10 h-10 bg-red-800 hover:bg-red-700 rounded-lg text-white font-bold text-xl transition shadow">+</button>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 bg-blue-200">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <button @click="decrement('bleu', 'gamjeom')" class="w-10 h-10 bg-blue-400 hover:bg-blue-500 rounded-lg text-white font-bold text-xl transition shadow">−</button>
+                                        <span class="w-12 text-center font-black text-2xl text-blue-900" x-text="rounds[roundActuel]?.bleu?.gamjeom || 0"></span>
+                                        <button @click="increment('bleu', 'gamjeom')" class="w-10 h-10 bg-blue-800 hover:bg-blue-700 rounded-lg text-white font-bold text-xl transition shadow">+</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>
+                        <!-- Score du round -->
+                        <tfoot>
+                            <tr class="bg-gray-800">
+                                <td class="px-6 py-4 text-white font-bold text-lg" colspan="2">
+                                    SCORE ROUND <span x-text="roundActuel === 'golden' ? 'GOLDEN' : roundActuel" class="text-yellow-400"></span>
+                                </td>
+                                <td class="px-6 py-4 text-center bg-red-700">
+                                    <span class="text-4xl font-black text-white" x-text="getScoreRound('rouge')"></span>
+                                </td>
+                                <td class="px-6 py-4 text-center bg-blue-700">
+                                    <span class="text-4xl font-black text-white" x-text="getScoreRound('bleu')"></span>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
-            </x-card>
+            </div>
 
             <!-- Actions finales -->
             <div class="mt-6 flex flex-wrap justify-center gap-4">
@@ -420,9 +449,21 @@
     @push('scripts')
     <script>
         function combatTaekwondo() {
+            const defaultRounds = {
+                '1': { rouge: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0}, bleu: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0} },
+                '2': { rouge: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0}, bleu: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0} },
+                '3': { rouge: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0}, bleu: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0} },
+                'golden': { rouge: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0}, bleu: {poing_tronc: 0, pied_tronc: 0, pied_rotatif_tronc: 0, pied_tete: 0, pied_rotatif_tete: 0, kyonggo: 0, gamjeom: 0} }
+            };
+            
+            let savedRounds = @json($combat->rounds);
+            if (!savedRounds || Object.keys(savedRounds).length === 0) {
+                savedRounds = defaultRounds;
+            }
+            
             return {
-                rounds: @json($combat->rounds ?? \App\Models\CombatTaekwondo::getDefaultRounds()),
-                roundActuel: {{ $combat->round_actuel ?? 1 }},
+                rounds: savedRounds,
+                roundActuel: '{{ $combat->round_actuel ?? 1 }}',
                 statut: '{{ $combat->statut }}',
                 scoreRouge: {{ $combat->score_rouge ?? 0 }},
                 scoreBleu: {{ $combat->score_bleu ?? 0 }},
@@ -432,15 +473,20 @@
                 showTerminerModal: false,
 
                 init() {
+                    // S'assurer que roundActuel est une string
+                    this.roundActuel = String(this.roundActuel);
+                    if (this.roundActuel === '4') this.roundActuel = 'golden';
                     this.calculateTotalScores();
                 },
 
                 increment(combattant, action) {
+                    if (!this.rounds[this.roundActuel]) return;
                     this.rounds[this.roundActuel][combattant][action]++;
                     this.calculateTotalScores();
                 },
 
                 decrement(combattant, action) {
+                    if (!this.rounds[this.roundActuel]) return;
                     if (this.rounds[this.roundActuel][combattant][action] > 0) {
                         this.rounds[this.roundActuel][combattant][action]--;
                         this.calculateTotalScores();
@@ -448,12 +494,14 @@
                 },
 
                 getScoreRound(combattant) {
+                    if (!this.rounds[this.roundActuel] || !this.rounds[this.roundActuel][combattant]) return 0;
                     const r = this.rounds[this.roundActuel][combattant];
                     let score = (r.poing_tronc * 1) + (r.pied_tronc * 2) + (r.pied_rotatif_tronc * 4) + (r.pied_tete * 3) + (r.pied_rotatif_tete * 5);
                     
-                    // Ajouter les gam-jeom de l'adversaire
+                    // Ajouter les points des pénalités adversaires (2 kyonggo = 1 pt, 1 gamjeom = 1 pt)
                     const adversaire = combattant === 'rouge' ? 'bleu' : 'rouge';
-                    score += this.rounds[this.roundActuel][adversaire].gamjeom;
+                    const advData = this.rounds[this.roundActuel][adversaire];
+                    score += Math.floor((advData.kyonggo || 0) / 2) + (advData.gamjeom || 0);
                     
                     return score;
                 },
@@ -463,11 +511,16 @@
                     let totalBleu = 0;
 
                     for (const [key, round] of Object.entries(this.rounds)) {
+                        // Points techniques
                         const rougeScore = (round.rouge.poing_tronc * 1) + (round.rouge.pied_tronc * 2) + (round.rouge.pied_rotatif_tronc * 4) + (round.rouge.pied_tete * 3) + (round.rouge.pied_rotatif_tete * 5);
                         const bleuScore = (round.bleu.poing_tronc * 1) + (round.bleu.pied_tronc * 2) + (round.bleu.pied_rotatif_tronc * 4) + (round.bleu.pied_tete * 3) + (round.bleu.pied_rotatif_tete * 5);
                         
-                        totalRouge += rougeScore + round.bleu.gamjeom;
-                        totalBleu += bleuScore + round.rouge.gamjeom;
+                        // Points des pénalités adversaires (2 kyonggo = 1 pt, 1 gamjeom = 1 pt)
+                        const penalitesRouge = Math.floor((round.bleu.kyonggo || 0) / 2) + (round.bleu.gamjeom || 0);
+                        const penalitesBleu = Math.floor((round.rouge.kyonggo || 0) / 2) + (round.rouge.gamjeom || 0);
+                        
+                        totalRouge += rougeScore + penalitesRouge;
+                        totalBleu += bleuScore + penalitesBleu;
                     }
 
                     this.scoreRouge = totalRouge;
@@ -502,9 +555,10 @@
                 },
 
                 nextRound() {
-                    if (this.roundActuel < 3) {
-                        this.roundActuel++;
-                    } else if (this.roundActuel === 3) {
+                    const currentRound = parseInt(this.roundActuel);
+                    if (!isNaN(currentRound) && currentRound < 3) {
+                        this.roundActuel = String(currentRound + 1);
+                    } else if (this.roundActuel === '3') {
                         this.roundActuel = 'golden';
                     }
                     this.resetChrono();

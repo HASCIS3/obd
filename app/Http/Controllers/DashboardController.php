@@ -8,6 +8,9 @@ use App\Models\Discipline;
 use App\Models\Paiement;
 use App\Models\Performance;
 use App\Models\Presence;
+use App\Models\Rencontre;
+use App\Models\Activity;
+use App\Models\CombatTaekwondo;
 use App\Services\StatistiqueService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -55,6 +58,7 @@ class DashboardController extends Controller
             'athletes_actifs' => Athlete::actifs()->count(),
             'athletes_total' => Athlete::count(),
             'disciplines' => Discipline::actives()->count(),
+            'coachs' => Coach::where('statut', 'actif')->count(),
             'presences_jour' => Presence::whereDate('date', $now->toDateString())->where('present', true)->count(),
         ];
 
@@ -69,10 +73,11 @@ class DashboardController extends Controller
             'arrieres' => $paiementsMois->where('statut', 'impaye')->count(),
         ];
 
-        // Activités récentes (dernières présences)
+        // Activités récentes (dernières présences) - Augmenter la limite et inclure toutes les disciplines
         $activitesRecentes = Presence::with(['athlete', 'discipline'])
+            ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
-            ->limit(10)
+            ->limit(50)
             ->get()
             ->map(function ($presence) {
                 return [
@@ -82,6 +87,61 @@ class DashboardController extends Controller
                     'discipline' => $presence->discipline?->nom,
                     'date' => $presence->date->toISOString(),
                     'present' => $presence->present,
+                ];
+            });
+
+        // Stats rencontres
+        $statsRencontres = [
+            'total' => Rencontre::count(),
+            'a_venir' => Rencontre::where('date_match', '>=', $now->toDateString())->count(),
+            'victoires' => Rencontre::where('resultat', 'victoire')->count(),
+            'defaites' => Rencontre::where('resultat', 'defaite')->count(),
+            'nuls' => Rencontre::where('resultat', 'nul')->count(),
+        ];
+
+        // Stats activités
+        $statsActivites = [
+            'total' => Activity::where('publie', true)->count(),
+            'a_venir' => Activity::where('publie', true)->where('debut', '>=', $now->startOfDay())->count(),
+        ];
+
+        // Stats performances
+        $statsPerformances = [
+            'matchs' => Performance::where('contexte', 'match')->count(),
+            'medailles' => Performance::whereNotNull('medaille')->count(),
+            'note_moyenne' => round(Performance::avg('note_globale') ?? 0, 1),
+        ];
+
+        // Prochaines rencontres
+        $prochainesRencontres = Rencontre::with('discipline')
+            ->where('date_match', '>=', $now->toDateString())
+            ->orderBy('date_match')
+            ->limit(5)
+            ->get()
+            ->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'adversaire' => $r->adversaire,
+                    'date_match' => $r->date_match,
+                    'discipline' => $r->discipline?->nom,
+                    'lieu' => $r->lieu,
+                    'type_competition' => $r->type_competition,
+                ];
+            });
+
+        // Prochaines activités
+        $prochainesActivites = Activity::where('publie', true)
+            ->where('debut', '>=', $now->startOfDay())
+            ->orderBy('debut')
+            ->limit(5)
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'id' => $a->id,
+                    'titre' => $a->titre,
+                    'type' => $a->type,
+                    'debut' => $a->debut,
+                    'lieu' => $a->lieu,
                 ];
             });
 
@@ -96,6 +156,11 @@ class DashboardController extends Controller
         return response()->json([
             'stats' => $stats,
             'activites_recentes' => $activitesRecentes,
+            'stats_rencontres' => $statsRencontres,
+            'stats_activites' => $statsActivites,
+            'stats_performances' => $statsPerformances,
+            'prochaines_rencontres' => $prochainesRencontres,
+            'prochaines_activites' => $prochainesActivites,
             'user' => $user ? [
                 'name' => $user->name,
                 'role' => $user->role,
@@ -178,6 +243,54 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // Statistiques des rencontres/matchs
+        $statsRencontres = [
+            'total' => Rencontre::count(),
+            'a_venir' => Rencontre::where('date_match', '>=', now()->toDateString())->count(),
+            'victoires' => Rencontre::where('resultat', 'victoire')->count(),
+            'defaites' => Rencontre::where('resultat', 'defaite')->count(),
+            'nuls' => Rencontre::where('resultat', 'nul')->count(),
+        ];
+        $statsRencontres['taux_victoire'] = $statsRencontres['total'] > 0 
+            ? round(($statsRencontres['victoires'] / $statsRencontres['total']) * 100, 1) 
+            : 0;
+
+        // Prochaines rencontres
+        $prochainesRencontres = Rencontre::with('discipline')
+            ->where('date_match', '>=', now()->toDateString())
+            ->orderBy('date_match')
+            ->take(5)
+            ->get();
+
+        // Dernières rencontres jouées
+        $dernieresRencontres = Rencontre::with('discipline')
+            ->where('date_match', '<', now()->toDateString())
+            ->orderBy('date_match', 'desc')
+            ->take(5)
+            ->get();
+
+        // Statistiques des activités (publiées uniquement)
+        $statsActivites = [
+            'total' => Activity::where('publie', true)->count(),
+            'a_venir' => Activity::where('publie', true)->where('debut', '>=', now()->startOfDay())->count(),
+            'ce_mois' => Activity::where('publie', true)->whereMonth('debut', now()->month)->whereYear('debut', now()->year)->count(),
+        ];
+
+        // Prochaines activités (publiées uniquement)
+        $prochainesActivites = Activity::where('publie', true)
+            ->where('debut', '>=', now()->startOfDay())
+            ->orderBy('debut')
+            ->take(5)
+            ->get();
+
+        // Statistiques combats Taekwondo
+        $statsCombats = [
+            'total' => CombatTaekwondo::count(),
+            'victoires_rouge' => CombatTaekwondo::where('vainqueur', 'rouge')->count(),
+            'victoires_bleu' => CombatTaekwondo::where('vainqueur', 'bleu')->count(),
+            'en_cours' => CombatTaekwondo::where('statut', 'en_cours')->count(),
+        ];
+
         return view('dashboard', compact(
             'stats',
             'tendances',
@@ -186,7 +299,13 @@ class DashboardController extends Controller
             'athletesArrieres',
             'graphiques',
             'statsPerformance',
-            'dernieresPerformances'
+            'dernieresPerformances',
+            'statsRencontres',
+            'prochainesRencontres',
+            'dernieresRencontres',
+            'statsActivites',
+            'prochainesActivites',
+            'statsCombats'
         ));
     }
 

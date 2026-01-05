@@ -36,6 +36,29 @@ class RencontreController extends Controller
             $query->where('saison', $request->saison);
         }
 
+        // Réponse API JSON
+        if ($request->expectsJson() || $request->is('api/*')) {
+            $rencontres = $query->get()->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'discipline_id' => $r->discipline_id,
+                    'discipline_nom' => $r->discipline?->nom,
+                    'date_match' => $r->date_match,
+                    'heure_match' => $r->heure_match,
+                    'type_match' => $r->type_match,
+                    'adversaire' => $r->adversaire,
+                    'lieu' => $r->lieu,
+                    'score_obd' => $r->score_obd,
+                    'score_adversaire' => $r->score_adversaire,
+                    'resultat' => $r->resultat,
+                    'type_competition' => $r->type_competition,
+                    'saison' => $r->saison,
+                    'phase' => $r->phase,
+                ];
+            });
+            return response()->json(['data' => $rencontres]);
+        }
+
         $rencontres = $query->paginate(15)->withQueryString();
 
         // Toutes les disciplines actives
@@ -56,6 +79,65 @@ class RencontreController extends Controller
         $saisons = Rencontre::distinct()->pluck('saison')->filter()->sort()->reverse();
 
         return view('rencontres.index', compact('rencontres', 'disciplines', 'stats', 'saisons'));
+    }
+
+    /**
+     * Matchs à venir (API)
+     */
+    public function aVenir()
+    {
+        $rencontres = Rencontre::with('discipline')
+            ->where('resultat', 'a_jouer')
+            ->where('date_match', '>=', now()->startOfDay())
+            ->orderBy('date_match')
+            ->limit(10)
+            ->get()
+            ->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'discipline_id' => $r->discipline_id,
+                    'discipline_nom' => $r->discipline?->nom,
+                    'date_match' => $r->date_match,
+                    'heure_match' => $r->heure_match,
+                    'type_match' => $r->type_match,
+                    'adversaire' => $r->adversaire,
+                    'lieu' => $r->lieu,
+                    'type_competition' => $r->type_competition,
+                    'resultat' => 'a_venir',
+                ];
+            });
+
+        return response()->json(['data' => $rencontres]);
+    }
+
+    /**
+     * Derniers résultats (API)
+     */
+    public function resultats()
+    {
+        $rencontres = Rencontre::with('discipline')
+            ->whereIn('resultat', ['victoire', 'defaite', 'nul'])
+            ->orderByDesc('date_match')
+            ->limit(10)
+            ->get()
+            ->map(function ($r) {
+                return [
+                    'id' => $r->id,
+                    'discipline_id' => $r->discipline_id,
+                    'discipline_nom' => $r->discipline?->nom,
+                    'date_match' => $r->date_match,
+                    'heure_match' => $r->heure_match,
+                    'type_match' => $r->type_match,
+                    'adversaire' => $r->adversaire,
+                    'lieu' => $r->lieu,
+                    'score_obd' => $r->score_obd,
+                    'score_adversaire' => $r->score_adversaire,
+                    'resultat' => $r->resultat,
+                    'type_competition' => $r->type_competition,
+                ];
+            });
+
+        return response()->json(['data' => $rencontres]);
     }
 
     /**

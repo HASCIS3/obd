@@ -83,4 +83,22 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     ]);
     Route::get('/performances/dashboard', [PerformanceController::class, 'dashboard'])->name('api.performances.dashboard');
     Route::get('/performances/evolution/{athlete}', [PerformanceController::class, 'evolution'])->name('api.performances.evolution');
+
+    // Rencontres
+    Route::apiResource('rencontres', \App\Http\Controllers\RencontreController::class)->names([
+        'index' => 'api.rencontres.index',
+        'store' => 'api.rencontres.store',
+        'show' => 'api.rencontres.show',
+        'update' => 'api.rencontres.update',
+        'destroy' => 'api.rencontres.destroy',
+    ]);
+    Route::get('/rencontres/a-venir', [\App\Http\Controllers\RencontreController::class, 'aVenir'])->name('api.rencontres.a-venir');
+    Route::get('/rencontres/resultats', [\App\Http\Controllers\RencontreController::class, 'resultats'])->name('api.rencontres.resultats');
+
+    // Activités
+    Route::apiResource('activities', \App\Http\Controllers\ActivityController::class)->only(['index', 'show'])->names([
+        'index' => 'api.activities.index',
+        'show' => 'api.activities.show',
+    ]);
+    Route::get('/activities/a-venir', [\App\Http\Controllers\ActivityController::class, 'aVenir'])->name('api.activities.a-venir');
 });

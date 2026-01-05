@@ -82,13 +82,22 @@
             <x-card title="Precedentes">
                 @if($precedentes->count() > 0)
                     <ul class="divide-y divide-gray-200">
-                        @foreach($precedentes as $activity)
+                        @foreach($precedentes as $item)
                             <li class="py-3">
-                                <a href="{{ route('activities.show', $activity) }}" class="block hover:bg-gray-50 rounded-lg p-2 -m-2">
+                                @php
+                                    $isRencontre = isset($item->is_rencontre) && $item->is_rencontre;
+                                    $url = $isRencontre ? route('rencontres.show', $item->id) : route('activities.show', $item);
+                                @endphp
+                                <a href="{{ $url }}" class="block hover:bg-gray-50 rounded-lg p-2 -m-2">
                                     <div class="flex items-start justify-between gap-4">
                                         <div class="flex items-start gap-3">
-                                            @if($activity->image_url)
-                                                <img src="{{ $activity->image_url }}" alt="{{ $activity->titre }}" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
+                                            @if($isRencontre)
+                                                {{-- Icône pour les matchs avec résultat --}}
+                                                <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 {{ $item->resultat === 'victoire' ? 'bg-green-100' : ($item->resultat === 'defaite' ? 'bg-red-100' : 'bg-yellow-100') }}">
+                                                    <span class="text-2xl">{{ $item->discipline?->icone ?? '⚽' }}</span>
+                                                </div>
+                                            @elseif(isset($item->image_url) && $item->image_url)
+                                                <img src="{{ $item->image_url }}" alt="{{ $item->titre }}" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
                                             @else
                                                 <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                                     <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,19 +106,30 @@
                                                 </div>
                                             @endif
                                             <div>
-                                                <p class="text-sm font-semibold text-gray-900">{{ $activity->titre }}</p>
+                                                <p class="text-sm font-semibold text-gray-900">{{ $item->titre }}</p>
                                                 <p class="text-xs text-gray-500 mt-1">
-                                                    {{ $activity->debut?->format('d/m/Y H:i') }}
-                                                    @if($activity->lieu)
-                                                        - {{ $activity->lieu }}
+                                                    {{ $item->debut instanceof \Carbon\Carbon ? $item->debut->format('d/m/Y') : \Carbon\Carbon::parse($item->debut)->format('d/m/Y') }}
+                                                    @if($item->lieu)
+                                                        - {{ $item->lieu }}
                                                     @endif
                                                 </p>
-                                                @if($activity->discipline)
-                                                    <p class="text-xs text-primary-600 mt-1">{{ $activity->discipline->nom }}</p>
+                                                @if($item->discipline)
+                                                    <p class="text-xs text-primary-600 mt-1">{{ $item->discipline->nom }}</p>
+                                                @endif
+                                                @if($isRencontre && $item->score_obd !== null)
+                                                    <p class="text-xs font-bold mt-1 {{ $item->resultat === 'victoire' ? 'text-green-600' : ($item->resultat === 'defaite' ? 'text-red-600' : 'text-yellow-600') }}">
+                                                        Score: {{ $item->score_obd }} - {{ $item->score_adversaire }}
+                                                    </p>
                                                 @endif
                                             </div>
                                         </div>
-                                        <x-badge color="{{ $activity->type_color }}" size="sm">{{ $activity->type_label }}</x-badge>
+                                        @if($isRencontre)
+                                            <x-badge color="{{ $item->resultat === 'victoire' ? 'success' : ($item->resultat === 'defaite' ? 'danger' : 'warning') }}" size="sm">
+                                                {{ ucfirst($item->resultat) }}
+                                            </x-badge>
+                                        @else
+                                            <x-badge color="{{ $item->type_color ?? 'gray' }}" size="sm">{{ $item->type_label ?? ucfirst($item->type) }}</x-badge>
+                                        @endif
                                     </div>
                                 </a>
                             </li>

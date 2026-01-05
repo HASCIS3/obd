@@ -56,6 +56,18 @@
                     </svg>
                     Calendrier
                 </a>
+                <a href="{{ route('rencontres.index') }}" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition border shadow-sm">
+                    <svg class="w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Rencontres
+                </a>
+                <a href="{{ route('activities.index') }}" class="inline-flex items-center px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition border shadow-sm">
+                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Activités
+                </a>
             </div>
         </div>
 
@@ -344,6 +356,179 @@
             </div>
         </div>
         @endif
+
+        <!-- Section Rencontres et Activités -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Rencontres sportives -->
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <span class="text-2xl mr-2">⚔️</span>
+                        Rencontres sportives
+                    </h3>
+                    <a href="{{ route('rencontres.index') }}" class="text-xs text-primary-600 hover:underline">Voir toutes</a>
+                </div>
+                
+                <!-- Stats rencontres -->
+                <div class="grid grid-cols-4 gap-2 mb-4">
+                    <div class="bg-gray-50 rounded-lg p-2 text-center">
+                        <p class="text-xl font-bold text-gray-700">{{ $statsRencontres['total'] }}</p>
+                        <p class="text-xs text-gray-500">Total</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-2 text-center">
+                        <p class="text-xl font-bold text-green-600">{{ $statsRencontres['victoires'] }}</p>
+                        <p class="text-xs text-green-700">Victoires</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-2 text-center">
+                        <p class="text-xl font-bold text-red-600">{{ $statsRencontres['defaites'] }}</p>
+                        <p class="text-xs text-red-700">Défaites</p>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-2 text-center">
+                        <p class="text-xl font-bold text-yellow-600">{{ $statsRencontres['nuls'] }}</p>
+                        <p class="text-xs text-yellow-700">Nuls</p>
+                    </div>
+                </div>
+
+                <!-- Prochaines rencontres -->
+                @if($prochainesRencontres->count() > 0)
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2">📅 Prochaines rencontres</h4>
+                    <ul class="space-y-2">
+                        @foreach($prochainesRencontres->take(3) as $rencontre)
+                            <li class="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="text-lg mr-2">{{ $rencontre->discipline->icone ?? '🏆' }}</span>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">vs {{ $rencontre->adversaire }}</p>
+                                        <p class="text-xs text-gray-500">{{ $rencontre->discipline->nom ?? 'Sport' }} • {{ $rencontre->lieu ?? 'Lieu TBD' }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-blue-600">{{ \Carbon\Carbon::parse($rencontre->date_match)->format('d/m') }}</p>
+                                    <p class="text-xs text-gray-500">{{ $rencontre->heure_match ? \Carbon\Carbon::parse($rencontre->heure_match)->format('H:i') : '' }}</p>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="text-center py-4 text-gray-500">
+                        <p class="text-sm">Aucune rencontre à venir</p>
+                        <a href="{{ route('rencontres.create') }}" class="text-xs text-primary-600 hover:underline">+ Planifier une rencontre</a>
+                    </div>
+                @endif
+
+                <!-- Derniers résultats -->
+                @if($dernieresRencontres->count() > 0)
+                    <h4 class="text-sm font-semibold text-gray-700 mt-4 mb-2">📊 Derniers résultats</h4>
+                    <ul class="space-y-2">
+                        @foreach($dernieresRencontres->take(3) as $rencontre)
+                            <li class="flex items-center justify-between p-2 rounded-lg {{ $rencontre->resultat === 'victoire' ? 'bg-green-50' : ($rencontre->resultat === 'defaite' ? 'bg-red-50' : 'bg-gray-50') }}">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">vs {{ $rencontre->adversaire }}</p>
+                                    <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($rencontre->date_match)->format('d/m/Y') }}</p>
+                                </div>
+                                <div class="text-right">
+                                    @if($rencontre->score_obd !== null && $rencontre->score_adversaire !== null)
+                                        <p class="text-sm font-bold {{ $rencontre->resultat === 'victoire' ? 'text-green-600' : ($rencontre->resultat === 'defaite' ? 'text-red-600' : 'text-yellow-600') }}">
+                                            {{ $rencontre->score_obd }} - {{ $rencontre->score_adversaire }}
+                                        </p>
+                                    @endif
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $rencontre->resultat === 'victoire' ? 'bg-green-100 text-green-800' : ($rencontre->resultat === 'defaite' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
+                                        {{ ucfirst($rencontre->resultat ?? 'En attente') }}
+                                    </span>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+
+            <!-- Activités -->
+            <div class="bg-white rounded-xl shadow-sm border p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                        <span class="text-2xl mr-2">📆</span>
+                        Activités & Événements
+                    </h3>
+                    <a href="{{ route('activities.index') }}" class="text-xs text-primary-600 hover:underline">Voir toutes</a>
+                </div>
+
+                <!-- Stats activités -->
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="bg-indigo-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-indigo-600">{{ $statsActivites['total'] }}</p>
+                        <p class="text-xs text-indigo-700">Total</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-green-600">{{ $statsActivites['a_venir'] }}</p>
+                        <p class="text-xs text-green-700">À venir</p>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-orange-600">{{ $statsActivites['ce_mois'] }}</p>
+                        <p class="text-xs text-orange-700">Ce mois</p>
+                    </div>
+                </div>
+
+                <!-- Prochaines activités -->
+                @if($prochainesActivites->count() > 0)
+                    <h4 class="text-sm font-semibold text-gray-700 mb-2">🗓️ Prochaines activités</h4>
+                    <ul class="space-y-2">
+                        @foreach($prochainesActivites->take(4) as $activite)
+                            <li class="flex items-center justify-between p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-l-4 border-indigo-500">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">{{ $activite->titre }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium" style="background-color: {{ $activite->couleur_type }}20; color: {{ $activite->couleur_type }};">
+                                            {{ $activite->libelle_type }}
+                                        </span>
+                                        @if($activite->lieu) • {{ $activite->lieu }} @endif
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-indigo-600">{{ \Carbon\Carbon::parse($activite->debut)->format('d/m') }}</p>
+                                    <p class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($activite->debut)->format('H:i') }}</p>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <div class="text-center py-8 text-gray-500">
+                        <svg class="mx-auto h-10 w-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="mt-2 text-sm">Aucune activité à venir</p>
+                        <a href="{{ route('activities.create') }}" class="text-xs text-primary-600 hover:underline">+ Créer une activité</a>
+                    </div>
+                @endif
+
+                <!-- Combats Taekwondo si existants -->
+                @if($statsCombats['total'] > 0)
+                    <div class="mt-4 p-3 bg-gradient-to-r from-red-100 via-white to-blue-100 rounded-lg border">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <span class="text-lg mr-2">🥋</span> Combats Taekwondo
+                        </h4>
+                        <div class="flex items-center justify-between">
+                            <div class="text-center">
+                                <p class="text-lg font-bold text-red-600">{{ $statsCombats['victoires_rouge'] }}</p>
+                                <p class="text-xs text-gray-500">Hong (Rouge)</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-2xl font-black text-gray-400">{{ $statsCombats['total'] }}</p>
+                                <p class="text-xs text-gray-500">Combats</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-lg font-bold text-blue-600">{{ $statsCombats['victoires_bleu'] }}</p>
+                                <p class="text-xs text-gray-500">Chung (Bleu)</p>
+                            </div>
+                        </div>
+                        @if($statsCombats['en_cours'] > 0)
+                            <p class="text-center mt-2 text-xs text-orange-600 font-medium">
+                                🔴 {{ $statsCombats['en_cours'] }} combat(s) en cours
+                            </p>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        </div>
 
         <!-- Dernières performances -->
         <div class="bg-white rounded-xl shadow-sm border mb-8">
