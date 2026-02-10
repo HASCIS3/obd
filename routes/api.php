@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ChatbotController;
 use App\Http\Controllers\Api\PortailAthleteController;
 use App\Http\Controllers\Api\PortailParentController;
 use App\Http\Controllers\AthleteController;
@@ -32,6 +33,16 @@ Route::middleware('throttle:5,1')->group(function () {
     Route::post('/login/staff', [AuthController::class, 'loginStaff']);
     
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+});
+
+// Routes Chatbot publiques (avec rate limiting modéré)
+Route::middleware('throttle:30,1')->prefix('chatbot')->name('api.chatbot.')->group(function () {
+    Route::get('/welcome', [ChatbotController::class, 'welcome'])->name('welcome');
+    Route::get('/faqs', [ChatbotController::class, 'getFaqs'])->name('faqs');
+    Route::post('/message', [ChatbotController::class, 'sendMessage'])->name('message');
+    Route::get('/history', [ChatbotController::class, 'getHistory'])->name('history');
+    Route::post('/escalate', [ChatbotController::class, 'escalateToSupport'])->name('escalate');
+    Route::post('/close', [ChatbotController::class, 'closeConversation'])->name('close');
 });
 
 // Routes protégées avec rate limiting (60 requêtes par minute)

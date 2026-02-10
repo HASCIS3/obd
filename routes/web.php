@@ -23,6 +23,7 @@ use App\Http\Controllers\PortailAthleteController;
 use App\Http\Controllers\PointageController;
 use App\Http\Controllers\RencontreController;
 use App\Http\Controllers\CombatTaekwondoController;
+use App\Http\Controllers\Admin\ChatbotAdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -241,6 +242,21 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::post('/saisons/{saison}/activer', [SaisonController::class, 'activer'])->name('saisons.activer');
     Route::post('/saisons/{saison}/archiver', [SaisonController::class, 'archiver'])->name('saisons.archiver');
     Route::resource('saisons', SaisonController::class);
+
+    // Gestion du Chatbot
+    Route::prefix('chatbot')->name('admin.chatbot.')->group(function () {
+        Route::get('/', [ChatbotAdminController::class, 'index'])->name('index');
+        Route::get('/conversations', [ChatbotAdminController::class, 'conversations'])->name('conversations');
+        Route::get('/conversations/{conversation}', [ChatbotAdminController::class, 'showConversation'])->name('conversations.show');
+        Route::post('/conversations/{conversation}/reply', [ChatbotAdminController::class, 'replyConversation'])->name('conversations.reply');
+        Route::post('/conversations/{conversation}/close', [ChatbotAdminController::class, 'closeConversation'])->name('conversations.close');
+        Route::get('/faqs', [ChatbotAdminController::class, 'faqs'])->name('faqs');
+        Route::get('/faqs/create', [ChatbotAdminController::class, 'createFaq'])->name('faqs.create');
+        Route::post('/faqs', [ChatbotAdminController::class, 'storeFaq'])->name('faqs.store');
+        Route::get('/faqs/{faq}/edit', [ChatbotAdminController::class, 'editFaq'])->name('faqs.edit');
+        Route::put('/faqs/{faq}', [ChatbotAdminController::class, 'updateFaq'])->name('faqs.update');
+        Route::delete('/faqs/{faq}', [ChatbotAdminController::class, 'destroyFaq'])->name('faqs.destroy');
+    });
 
     // Gestion des factures
     Route::post('/factures/{facture}/emettre', [FactureController::class, 'emettre'])->name('factures.emettre');
