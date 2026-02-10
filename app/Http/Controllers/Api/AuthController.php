@@ -62,10 +62,136 @@ class AuthController extends Controller
         // Créer un nouveau token
         $token = $user->createToken('mobile-app')->plainTextToken;
 
+        // Déterminer le type de portail et les permissions
+        $portail = $this->determinerPortail($user);
+
         return response()->json([
             'token' => $token,
             'user' => $this->formatUser($user),
+            'portail' => $portail,
         ]);
+    }
+
+    /**
+     * Connexion athlète uniquement
+     */
+    public function loginAthlete(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Les identifiants sont incorrects.'],
+            ]);
+        }
+
+        if (!$user->isAthlete()) {
+            throw ValidationException::withMessages([
+                'email' => ['Ce compte n\'est pas un compte athlète.'],
+            ]);
+        }
+
+        $user->tokens()->delete();
+        $token = $user->createToken('mobile-athlete')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => $this->formatUser($user),
+            'portail' => 'athlete',
+        ]);
+    }
+
+    /**
+     * Connexion parent uniquement
+     */
+    public function loginParent(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Les identifiants sont incorrects.'],
+            ]);
+        }
+
+        if (!$user->isParent()) {
+            throw ValidationException::withMessages([
+                'email' => ['Ce compte n\'est pas un compte parent.'],
+            ]);
+        }
+
+        $user->tokens()->delete();
+        $token = $user->createToken('mobile-parent')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => $this->formatUser($user),
+            'portail' => 'parent',
+        ]);
+    }
+
+    /**
+     * Connexion admin/coach uniquement
+     */
+    public function loginStaff(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Les identifiants sont incorrects.'],
+            ]);
+        }
+
+        if (!$user->isAdmin() && !$user->isCoach()) {
+            throw ValidationException::withMessages([
+                'email' => ['Ce compte n\'a pas accès à l\'espace staff.'],
+            ]);
+        }
+
+        $user->tokens()->delete();
+        $token = $user->createToken('mobile-staff')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => $this->formatUser($user),
+            'portail' => $user->isAdmin() ? 'admin' : 'coach',
+        ]);
+    }
+
+    /**
+     * Déterminer le portail de l'utilisateur
+     */
+    private function determinerPortail(User $user): string
+    {
+        if ($user->isAdmin()) {
+            return 'admin';
+        }
+        if ($user->isCoach()) {
+            return 'coach';
+        }
+        if ($user->isAthlete()) {
+            return 'athlete';
+        }
+        if ($user->isParent()) {
+            return 'parent';
+        }
+        return 'unknown';
     }
 
     /**

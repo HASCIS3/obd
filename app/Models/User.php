@@ -18,6 +18,7 @@ class User extends Authenticatable
     public const ROLE_ADMIN = 'admin';
     public const ROLE_COACH = 'coach';
     public const ROLE_PARENT = 'parent';
+    public const ROLE_ATHLETE = 'athlete';
 
     public function athlete(): BelongsTo
     {

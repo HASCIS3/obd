@@ -12,8 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modifier l'enum pour ajouter le rôle 'parent'
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'coach', 'athlete', 'parent') DEFAULT 'athlete'");
+        $driver = Schema::getConnection()->getDriverName();
+        
+        if ($driver === 'mysql') {
+            // MySQL supporte MODIFY COLUMN avec ENUM
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'coach', 'athlete', 'parent') DEFAULT 'athlete'");
+        }
+        // SQLite stocke les enums comme des strings, pas besoin de modifier la structure
     }
 
     /**
@@ -21,6 +26,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'coach', 'athlete') DEFAULT 'athlete'");
+        $driver = Schema::getConnection()->getDriverName();
+        
+        if ($driver === 'mysql') {
+            DB::statement("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'coach', 'athlete') DEFAULT 'athlete'");
+        }
     }
 };

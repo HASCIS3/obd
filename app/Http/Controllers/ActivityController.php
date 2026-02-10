@@ -50,11 +50,25 @@ class ActivityController extends Controller
             ->paginate(10, ['*'], 'a_venir')
             ->withQueryString();
 
-        // Activités précédentes
+        // Activités précédentes - convertir en tableau d'objets simples
         $activitesPrecedentes = (clone $query)
             ->where('debut', '<', $now)
             ->orderBy('debut', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($a) {
+                return (object) [
+                    'id' => $a->id,
+                    'type' => $a->type,
+                    'titre' => $a->titre,
+                    'description' => $a->description,
+                    'lieu' => $a->lieu,
+                    'debut' => $a->debut,
+                    'fin' => $a->fin,
+                    'image' => $a->image,
+                    'discipline' => $a->discipline,
+                    'is_rencontre' => false,
+                ];
+            });
 
         // Rencontres passées (matchs joués)
         $rencontresPrecedentes = collect();
@@ -71,6 +85,8 @@ class ActivityController extends Controller
                         'description' => $r->remarques,
                         'lieu' => $r->lieu,
                         'debut' => $r->date_match,
+                        'fin' => null,
+                        'image' => null,
                         'discipline' => $r->discipline,
                         'resultat' => $r->resultat,
                         'score_obd' => $r->score_obd,
@@ -81,7 +97,7 @@ class ActivityController extends Controller
         }
 
         // Fusionner et trier par date décroissante
-        $precedentesCollection = $activitesPrecedentes->merge($rencontresPrecedentes)
+        $precedentesCollection = collect($activitesPrecedentes)->merge($rencontresPrecedentes)
             ->sortByDesc('debut')
             ->values();
 

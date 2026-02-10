@@ -58,7 +58,7 @@ class DashboardController extends Controller
             'athletes_actifs' => Athlete::actifs()->count(),
             'athletes_total' => Athlete::count(),
             'disciplines' => Discipline::actives()->count(),
-            'coachs' => Coach::where('statut', 'actif')->count(),
+            'coachs' => Coach::count(),
             'presences_jour' => Presence::whereDate('date', $now->toDateString())->where('present', true)->count(),
         ];
 
@@ -85,7 +85,7 @@ class DashboardController extends Controller
                     'type' => 'presence',
                     'athlete' => $presence->athlete?->nom_complet,
                     'discipline' => $presence->discipline?->nom,
-                    'date' => $presence->date->toISOString(),
+                    'date' => $presence->date ? $presence->date->toIso8601String() : null,
                     'present' => $presence->present,
                 ];
             });

@@ -76,7 +76,7 @@ class PerformanceController extends Controller
     /**
      * Enregistre une nouvelle performance
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'athlete_id' => 'required|exists:athletes,id',
@@ -95,9 +95,9 @@ class PerformanceController extends Controller
             'lieu' => 'nullable|string|max:255',
             'classement' => 'nullable|integer|min:1',
             'medaille' => 'nullable|in:or,argent,bronze',
-            'note_physique' => 'nullable|integer|min:1|max:10',
-            'note_technique' => 'nullable|integer|min:1|max:10',
-            'note_comportement' => 'nullable|integer|min:1|max:10',
+            'note_physique' => 'nullable|integer|min:1|max:20',
+            'note_technique' => 'nullable|integer|min:1|max:20',
+            'note_comportement' => 'nullable|integer|min:1|max:20',
         ]);
 
         // Calculer la note globale
@@ -112,6 +112,14 @@ class PerformanceController extends Controller
         }
 
         $performance = Performance::create($validated);
+
+        // Réponse API JSON
+        if ($request->is('api/*') || $request->expectsJson()) {
+            return response()->json([
+                'message' => 'Performance enregistrée avec succès',
+                'data' => $performance->load(['athlete', 'discipline']),
+            ], 201);
+        }
 
         return redirect()->route('performances.show', $performance)
             ->with('success', 'Performance enregistrée avec succès.');

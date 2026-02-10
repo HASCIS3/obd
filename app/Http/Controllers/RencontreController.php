@@ -183,6 +183,20 @@ class RencontreController extends Controller
 
         $rencontre = Rencontre::create($validated);
 
+        // Réponse API JSON
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'message' => 'Match enregistré avec succès',
+                'data' => [
+                    'id' => $rencontre->id,
+                    'discipline_id' => $rencontre->discipline_id,
+                    'date_match' => $rencontre->date_match,
+                    'adversaire' => $rencontre->adversaire,
+                    'resultat' => $rencontre->resultat,
+                ]
+            ], 201);
+        }
+
         return redirect()
             ->route('rencontres.show', $rencontre)
             ->with('success', 'Match enregistré avec succès.');
@@ -191,9 +205,34 @@ class RencontreController extends Controller
     /**
      * Afficher un match
      */
-    public function show(Rencontre $rencontre)
+    public function show(Request $request, Rencontre $rencontre)
     {
         $rencontre->load(['discipline', 'participations.athlete']);
+
+        // Réponse API JSON
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json([
+                'data' => [
+                    'id' => $rencontre->id,
+                    'discipline_id' => $rencontre->discipline_id,
+                    'discipline_nom' => $rencontre->discipline?->nom,
+                    'date_match' => $rencontre->date_match,
+                    'heure_match' => $rencontre->heure_match,
+                    'type_match' => $rencontre->type_match,
+                    'adversaire' => $rencontre->adversaire,
+                    'lieu' => $rencontre->lieu,
+                    'score_obd' => $rencontre->score_obd,
+                    'score_adversaire' => $rencontre->score_adversaire,
+                    'resultat' => $rencontre->resultat,
+                    'type_competition' => $rencontre->type_competition,
+                    'saison' => $rencontre->saison,
+                    'phase' => $rencontre->phase,
+                    'description' => $rencontre->remarques,
+                    'created_at' => $rencontre->created_at,
+                    'updated_at' => $rencontre->updated_at,
+                ]
+            ]);
+        }
 
         // Statistiques du match
         $statsMatch = [

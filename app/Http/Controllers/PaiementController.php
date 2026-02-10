@@ -124,9 +124,9 @@ class PaiementController extends Controller
     }
 
     /**
-     * Enregistre un nouveau paiement
+     * Enregistre un nouveau paiement (Web ou API)
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'athlete_id' => 'required|exists:athletes,id',
@@ -172,6 +172,12 @@ class PaiementController extends Controller
         }
 
         $paiement = Paiement::create($validated);
+        $paiement->load('athlete');
+
+        // Si c'est une requête API, retourner JSON
+        if ($request->is('api/*') || $request->expectsJson()) {
+            return response()->json(['data' => $paiement], 201);
+        }
 
         return redirect()->route('paiements.show', $paiement)
             ->with('success', 'Paiement enregistré avec succès.');

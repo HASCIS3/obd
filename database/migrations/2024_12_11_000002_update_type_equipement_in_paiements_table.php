@@ -12,8 +12,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modifier l'enum pour ajouter les catégories de dobok
-        DB::statement("ALTER TABLE paiements MODIFY COLUMN type_equipement ENUM('maillot', 'dobok', 'dobok_enfant', 'dobok_junior', 'dobok_senior') NULL");
+        $driver = Schema::getConnection()->getDriverName();
+        
+        if ($driver === 'mysql') {
+            // MySQL supporte MODIFY COLUMN
+            DB::statement("ALTER TABLE paiements MODIFY COLUMN type_equipement ENUM('maillot', 'dobok', 'dobok_enfant', 'dobok_junior', 'dobok_senior') NULL");
+        } else {
+            // SQLite et autres : utiliser une approche compatible
+            // SQLite stocke les enums comme des strings, pas besoin de modifier la structure
+        }
     }
 
     /**
@@ -21,6 +28,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("ALTER TABLE paiements MODIFY COLUMN type_equipement ENUM('maillot', 'dobok') NULL");
+        $driver = Schema::getConnection()->getDriverName();
+        
+        if ($driver === 'mysql') {
+            DB::statement("ALTER TABLE paiements MODIFY COLUMN type_equipement ENUM('maillot', 'dobok') NULL");
+        }
     }
 };

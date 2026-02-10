@@ -86,7 +86,7 @@
                             <li class="py-3">
                                 @php
                                     $isRencontre = isset($item->is_rencontre) && $item->is_rencontre;
-                                    $url = $isRencontre ? route('rencontres.show', $item->id) : route('activities.show', $item);
+                                    $url = $isRencontre ? route('rencontres.show', $item->id) : route('activities.show', $item->id);
                                 @endphp
                                 <a href="{{ $url }}" class="block hover:bg-gray-50 rounded-lg p-2 -m-2">
                                     <div class="flex items-start justify-between gap-4">

@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PortailAthleteController;
+use App\Http\Controllers\Api\PortailParentController;
 use App\Http\Controllers\AthleteController;
 use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\PaiementController;
@@ -21,7 +23,14 @@ use App\Http\Controllers\DashboardController;
 
 // Routes publiques avec rate limiting strict (5 tentatives par minute)
 Route::middleware('throttle:5,1')->group(function () {
+    // Login général (détecte automatiquement le rôle)
     Route::post('/login', [AuthController::class, 'login']);
+    
+    // Logins spécifiques par rôle
+    Route::post('/login/athlete', [AuthController::class, 'loginAthlete']);
+    Route::post('/login/parent', [AuthController::class, 'loginParent']);
+    Route::post('/login/staff', [AuthController::class, 'loginStaff']);
+    
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 });
 
@@ -84,7 +93,9 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::get('/performances/dashboard', [PerformanceController::class, 'dashboard'])->name('api.performances.dashboard');
     Route::get('/performances/evolution/{athlete}', [PerformanceController::class, 'evolution'])->name('api.performances.evolution');
 
-    // Rencontres
+    // Rencontres - Routes spécifiques AVANT apiResource
+    Route::get('/rencontres/a-venir', [\App\Http\Controllers\RencontreController::class, 'aVenir'])->name('api.rencontres.a-venir');
+    Route::get('/rencontres/resultats', [\App\Http\Controllers\RencontreController::class, 'resultats'])->name('api.rencontres.resultats');
     Route::apiResource('rencontres', \App\Http\Controllers\RencontreController::class)->names([
         'index' => 'api.rencontres.index',
         'store' => 'api.rencontres.store',
@@ -92,13 +103,43 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         'update' => 'api.rencontres.update',
         'destroy' => 'api.rencontres.destroy',
     ]);
-    Route::get('/rencontres/a-venir', [\App\Http\Controllers\RencontreController::class, 'aVenir'])->name('api.rencontres.a-venir');
-    Route::get('/rencontres/resultats', [\App\Http\Controllers\RencontreController::class, 'resultats'])->name('api.rencontres.resultats');
 
-    // Activités
+    // Activités - Routes spécifiques AVANT apiResource
+    Route::get('/activities/a-venir', [\App\Http\Controllers\ActivityController::class, 'aVenir'])->name('api.activities.a-venir');
     Route::apiResource('activities', \App\Http\Controllers\ActivityController::class)->only(['index', 'show'])->names([
         'index' => 'api.activities.index',
         'show' => 'api.activities.show',
     ]);
-    Route::get('/activities/a-venir', [\App\Http\Controllers\ActivityController::class, 'aVenir'])->name('api.activities.a-venir');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Routes API Portail Athlète (réservées aux athlètes)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:sanctum', 'athlete', 'throttle:60,1'])->prefix('athlete')->name('api.athlete.')->group(function () {
+    Route::get('/', [PortailAthleteController::class, 'dashboard'])->name('dashboard');
+    Route::get('/presences', [PortailAthleteController::class, 'presences'])->name('presences');
+    Route::get('/suivi-scolaire', [PortailAthleteController::class, 'suiviScolaire'])->name('suivi-scolaire');
+    Route::get('/paiements', [PortailAthleteController::class, 'paiements'])->name('paiements');
+    Route::get('/performances', [PortailAthleteController::class, 'performances'])->name('performances');
+    Route::get('/calendrier', [PortailAthleteController::class, 'calendrier'])->name('calendrier');
+    Route::get('/profil', [PortailAthleteController::class, 'profil'])->name('profil');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Routes API Portail Parent (réservées aux parents)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:sanctum', 'parent', 'throttle:60,1'])->prefix('parent')->name('api.parent.')->group(function () {
+    Route::get('/', [PortailParentController::class, 'dashboard'])->name('dashboard');
+    Route::get('/enfants', [PortailParentController::class, 'enfants'])->name('enfants');
+    Route::get('/enfants/{athlete}', [PortailParentController::class, 'enfantShow'])->name('enfants.show');
+    Route::get('/enfants/{athlete}/presences', [PortailParentController::class, 'presences'])->name('presences');
+    Route::get('/enfants/{athlete}/suivi-scolaire', [PortailParentController::class, 'suiviScolaire'])->name('suivi-scolaire');
+    Route::get('/enfants/{athlete}/paiements', [PortailParentController::class, 'paiements'])->name('paiements');
+    Route::get('/enfants/{athlete}/performances', [PortailParentController::class, 'performances'])->name('performances');
+    Route::get('/calendrier', [PortailParentController::class, 'calendrier'])->name('calendrier');
+    Route::get('/profil', [PortailParentController::class, 'profil'])->name('profil');
 });

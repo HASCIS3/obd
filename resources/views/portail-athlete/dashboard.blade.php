@@ -3,18 +3,18 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 py-6">
     <!-- En-tête de bienvenue -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 mb-6 text-white">
+    <div class="bg-gradient-to-r from-green-600 to-green-700 rounded-xl shadow-lg p-6 mb-6 text-white">
         <div class="flex items-center">
             @if($athlete->photo)
                 <img src="{{ asset('storage/' . $athlete->photo) }}" alt="{{ $athlete->nom_complet }}" class="h-16 w-16 rounded-full object-cover border-4 border-white">
             @else
-                <div class="h-16 w-16 rounded-full bg-white flex items-center justify-center border-4 border-blue-200">
-                    <span class="text-blue-600 font-bold text-2xl">{{ substr($athlete->prenom, 0, 1) }}</span>
+                <div class="h-16 w-16 rounded-full bg-white flex items-center justify-center border-4 border-green-200">
+                    <span class="text-green-700 font-bold text-2xl">{{ substr($athlete->prenom, 0, 1) }}</span>
                 </div>
             @endif
             <div class="ml-4">
-                <h1 class="text-2xl font-bold">Salut, {{ $athlete->prenom }} !</h1>
-                <p class="text-blue-100">{{ $athlete->disciplines->first()->nom ?? 'Olympiade de Baco-Djicoroni' }}</p>
+                <h1 class="text-2xl font-bold text-white">Salut, {{ $athlete->prenom }} !</h1>
+                <p class="text-green-100">{{ $athlete->disciplines->first()->nom ?? 'Olympiade de Baco-Djicoroni' }}</p>
             </div>
         </div>
     </div>
@@ -80,7 +80,7 @@
     <div class="bg-white rounded-lg shadow mb-6">
         <div class="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
             <h2 class="text-lg font-semibold text-gray-800">Mes Dernieres Presences</h2>
-            <a href="{{ route('athlete.presences') }}" class="text-blue-600 text-sm hover:underline">Voir tout</a>
+            <a href="{{ route('athlete.presences') }}" class="text-green-600 text-sm hover:underline">Voir tout</a>
         </div>
         <div class="divide-y divide-gray-100">
             @forelse($dernieresPresences as $presence)
